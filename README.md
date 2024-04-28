@@ -5,7 +5,7 @@
 
 Exposing unsafe FFI functions from the Clipper2 library for Rust.
 
-**NOTE:** This crate is primarily intended to be used by the high level crate [clipper2 crate](https://github.com/tirithen/clipper2). If you just want to use Clipper2 from Rust that is probably the crate that you should try instead.
+**NOTE:** This crate is primarily intended to be used by the high level crate [clipper2](https://crates.io/crates/clipper2). If you just want to use Clipper2 from Rust that is probably the crate that you should try instead.
 
 The create is a Rust wrapper around the C++ version of
 [Clipper2](https://github.com/AngusJohnson/Clipper2) with the help of the [clipper2c-sys](https://github.com/songhuaixu/clipper2c) C wrapper.
