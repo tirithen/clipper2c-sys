@@ -1,10 +1,10 @@
 use crate::{
     clipper_clipper64, clipper_clipper64_add_clip, clipper_clipper64_add_subject,
-    clipper_clipper64_clear, clipper_clipper64_execute, clipper_clipper64_size,
-    clipper_delete_clipper64, clipper_delete_path64, clipper_delete_paths64,
-    clipper_path64_of_points, clipper_path64_size, clipper_paths64_get_point,
-    clipper_paths64_length, clipper_paths64_of_paths, clipper_paths64_path_length,
-    clipper_paths64_size, ClipperClipType_DIFFERENCE, ClipperFillRule_EVEN_ODD, ClipperPoint64,
+    clipper_clipper64_execute, clipper_clipper64_size, clipper_delete_clipper64,
+    clipper_delete_path64, clipper_delete_paths64, clipper_path64_of_points, clipper_path64_size,
+    clipper_paths64_get_point, clipper_paths64_length, clipper_paths64_of_paths,
+    clipper_paths64_path_length, clipper_paths64_size, ClipperClipType_DIFFERENCE,
+    ClipperFillRule_EVEN_ODD, ClipperPoint64,
 };
 
 unsafe fn malloc(size: usize) -> *mut std::os::raw::c_void {
