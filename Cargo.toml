@@ -1,0 +1,23 @@
+[package]
+name = "clipper2c-sys"
+version = "0.1.0"
+authors = ["Fredrik Söderström <tirithen@gmail.com>"]
+edition = "2021"
+license = "MIT OR Apache-2.0"
+readme = "README.md"
+repository = "https://github.com/tirithen/clipper2c-sys"
+documentation = "https://docs.rs/clipper2c-sys/"
+description = "Exposing unsafe FFI for Clipper2 library for Rust."
+keywords = ["polygon", "boolean", "clip", "clipper", "clipper2"]
+categories = ["algorithms", "external-ffi-bindings"]
+
+[features]
+generate-bindings = ["bindgen"]
+update-bindings = ["generate-bindings"]
+
+[dependencies]
+libc = "0.2"
+
+[build-dependencies]
+bindgen = { version = "0.69.4", optional = true }
+cc = "1.0.94"
