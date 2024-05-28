@@ -72,6 +72,7 @@ fn main() {
             .allowlist_function("clipper_pathd_simplify")
             .allowlist_function("clipper_pathd_to_path64")
             .allowlist_function("clipper_point_in_pathd")
+            .allowlist_function("clipper_pathd_area")
             // PathsD Methods
             .allowlist_function("clipper_pathsd_size")
             .allowlist_function("clipper_pathsd")
@@ -86,6 +87,7 @@ fn main() {
             .allowlist_function("clipper_pathsd_simplify")
             .allowlist_function("clipper_pathsd_inflate")
             .allowlist_function("clipper_pathsd_to_paths64")
+            .allowlist_function("clipper_pathsd_area")
             // ClipperD Methods
             .allowlist_function("clipper_clipperd_size")
             .allowlist_function("clipper_clipperd")
@@ -125,6 +127,7 @@ fn main() {
             .allowlist_function("clipper_path64_simplify")
             .allowlist_function("clipper_path64_to_pathd")
             .allowlist_function("clipper_point_in_path64")
+            .allowlist_function("clipper_path64_area")
             // Paths64 Methods
             .allowlist_function("clipper_paths64_size")
             .allowlist_function("clipper_paths64")
@@ -139,6 +142,7 @@ fn main() {
             .allowlist_function("clipper_paths64_simplify")
             .allowlist_function("clipper_paths64_inflate")
             .allowlist_function("clipper_paths64_to_pathsd")
+            .allowlist_function("clipper_paths64_area")
             // ClipperD Methods
             .allowlist_function("clipper_clipper64_size")
             .allowlist_function("clipper_clipper64")
