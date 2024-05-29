@@ -49,7 +49,7 @@ fn main() {
 
     #[cfg(feature = "generate-bindings")]
     {
-        let bindings = bindgen::Builder::default()
+        let mut builder = bindgen::Builder::default()
             .header("clipper2c/include/clipper2c.h")
             .header("clipper2c/include/types.h")
             .allowlist_type("ClipperClipperD")
@@ -184,9 +184,14 @@ fn main() {
             .allowlist_function("clipper_clipperoffset_add_paths64")
             .allowlist_function("clipper_clipperoffset_execute")
             .allowlist_function("clipper_delete_clipperoffset")
-            .size_t_is_usize(true)
-            .generate()
-            .expect("unable to generate bindings");
+            .size_t_is_usize(true);
+
+        #[cfg(feature = "serde")]
+        {
+            builder = builder.parse_callbacks(Box::new(serde_callbacks::BindgenCallbacks));
+        }
+
+        let bindings = builder.generate().expect("unable to generate bindings");
 
         let out_path = if cfg!(feature = "update-bindings") {
             std::path::PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap()).join("generated")
@@ -197,5 +202,25 @@ fn main() {
         bindings
             .write_to_file(out_path.join("bindings.rs"))
             .expect("couldn't write bindings!");
+    }
+}
+
+#[cfg(all(feature = "generate-bindings", feature = "serde"))]
+mod serde_callbacks {
+    #[derive(Debug)]
+    pub(crate) struct BindgenCallbacks;
+
+    impl bindgen::callbacks::ParseCallbacks for BindgenCallbacks {
+        fn add_derives(&self, info: &bindgen::callbacks::DeriveInfo<'_>) -> Vec<String> {
+            let names = vec!["ClipperPoint64"];
+            if names.contains(&info.name) {
+                vec!["Serialize", "Deserialize"]
+                    .drain(..)
+                    .map(|s| s.to_string())
+                    .collect()
+            } else {
+                vec![]
+            }
+        }
     }
 }
