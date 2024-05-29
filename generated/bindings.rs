@@ -356,6 +356,18 @@ extern "C" {
     ) -> *mut ClipperPaths64;
 }
 extern "C" {
+    pub fn clipper_pathd_area(path: *mut ClipperPathD) -> f64;
+}
+extern "C" {
+    pub fn clipper_path64_area(path: *mut ClipperPath64) -> f64;
+}
+extern "C" {
+    pub fn clipper_pathsd_area(paths: *mut ClipperPathsD) -> f64;
+}
+extern "C" {
+    pub fn clipper_paths64_area(paths: *mut ClipperPaths64) -> f64;
+}
+extern "C" {
     pub fn clipper_point_in_path64(
         path: *mut ClipperPath64,
         pt: ClipperPoint64,
