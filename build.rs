@@ -49,7 +49,7 @@ fn main() {
 
     #[cfg(feature = "generate-bindings")]
     {
-        let builder = bindgen::Builder::default()
+        let mut builder = bindgen::Builder::default()
             .header("clipper2c/include/clipper2c.h")
             .header("clipper2c/include/types.h")
             .allowlist_type("ClipperClipperD")
