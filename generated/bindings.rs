@@ -88,6 +88,10 @@ fn bindgen_test_layout_ClipperPointD() {
 }
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
+#[cfg_attr(
+	feature = "serde",
+	derive(serde::Serialize, serde::Deserialize)
+)]
 pub struct ClipperPoint64 {
     pub x: i64,
     pub y: i64,

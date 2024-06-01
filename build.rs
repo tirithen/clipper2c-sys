@@ -49,7 +49,7 @@ fn main() {
 
     #[cfg(feature = "generate-bindings")]
     {
-        let mut builder = bindgen::Builder::default()
+        let builder = bindgen::Builder::default()
             .header("clipper2c/include/clipper2c.h")
             .header("clipper2c/include/types.h")
             .allowlist_type("ClipperClipperD")
@@ -190,11 +190,6 @@ fn main() {
             .allowlist_function("clipper_delete_clipperoffset")
             .size_t_is_usize(true);
 
-        #[cfg(feature = "serde")]
-        {
-            builder = builder.parse_callbacks(Box::new(serde_callbacks::BindgenCallbacks));
-        }
-
         let bindings = builder.generate().expect("unable to generate bindings");
 
         let out_path = if cfg!(feature = "update-bindings") {
@@ -202,29 +197,19 @@ fn main() {
         } else {
             std::path::PathBuf::from(env::var("OUT_DIR").unwrap())
         };
+        let out_bindings = out_path.join("bindings.rs");
 
         bindings
-            .write_to_file(out_path.join("bindings.rs"))
+            .write_to_file(&out_bindings)
             .expect("couldn't write bindings!");
-    }
-}
 
-#[cfg(all(feature = "generate-bindings", feature = "serde"))]
-mod serde_callbacks {
-    #[derive(Debug)]
-    pub(crate) struct BindgenCallbacks;
+        let content = std::fs::read_to_string(&out_bindings).expect("couldn't read bindings file");
+        let processed_content = content.replace(
+            "pub struct ClipperPoint64 {",
+            "#[cfg_attr(\n\tfeature = \"serde\",\n\tderive(serde::Serialize, serde::Deserialize)\n)]\npub struct ClipperPoint64 {",
+        );
 
-    impl bindgen::callbacks::ParseCallbacks for BindgenCallbacks {
-        fn add_derives(&self, info: &bindgen::callbacks::DeriveInfo<'_>) -> Vec<String> {
-            let names = vec!["ClipperPoint64"];
-            if names.contains(&info.name) {
-                vec!["Serialize", "Deserialize"]
-                    .drain(..)
-                    .map(|s| s.to_string())
-                    .collect()
-            } else {
-                vec![]
-            }
-        }
+        std::fs::write(&out_bindings, processed_content)
+            .expect("couldn't write processed bindings file");
     }
 }
