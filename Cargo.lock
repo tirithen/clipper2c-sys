@@ -74,7 +74,7 @@ dependencies = [
 
 [[package]]
 name = "clipper2c-sys"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "bindgen",
  "cc",
