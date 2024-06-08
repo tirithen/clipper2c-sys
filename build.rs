@@ -6,7 +6,16 @@ fn main() {
         println!("cargo:rerun-if-changed=generated");
     }
 
-    cc::Build::new()
+    let mut build = cc::Build::new();
+    #[cfg(feature = "lto")]
+    {
+        build
+            .compiler("clang-cl")
+            .flag("-flto=thin")
+            .flag("-fuse-ld=lld-link")
+            .archiver("llvm-lib");
+    }
+    build
         .cpp(true)
         .opt_level(3)
         .include("clipper2c/vendor/Clipper2/CPP/Clipper2Lib/include/")

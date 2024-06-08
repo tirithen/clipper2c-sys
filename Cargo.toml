@@ -12,6 +12,7 @@ keywords = ["polygon", "boolean", "clip", "clipper", "clipper2"]
 categories = ["algorithms", "external-ffi-bindings"]
 
 [features]
+lto = []
 generate-bindings = ["bindgen"]
 update-bindings = ["generate-bindings"]
 serde = ["dep:serde"]
