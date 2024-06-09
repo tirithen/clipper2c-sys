@@ -4,9 +4,33 @@ on:
   pull_request:
 
 jobs:
-  test:
-    name: cargo test
+  test_ubuntu:
+    name: cargo test (ubuntu)
     runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
+      - run: cargo test --all-features
+
+  test_macos14:
+    name: cargo test (macos)
+    runs-on: macos-latest-large
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
+      - run: cargo test --all-features
+
+  test_macos14_arm64:
+    name: cargo test (macos 14 arm64)
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
+      - run: cargo test --all-features
+
+  test_windows:
+    name: cargo test (windows)
+    runs-on: windows-latest
     steps:
       - uses: actions/checkout@v3
       - uses: actions-rust-lang/setup-rust-toolchain@v1
