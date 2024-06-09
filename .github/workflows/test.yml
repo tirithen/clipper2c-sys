@@ -1,6 +1,8 @@
 name: "Test Suite"
-
-on: workflow_dispatch
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
 
 jobs:
   test_all_ubuntu:
