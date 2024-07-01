@@ -46,7 +46,7 @@ pub struct ClipperPolyTreeD {
     _unused: [u8; 0],
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone, PartialEq)]
 pub struct ClipperPointD {
     pub x: f64,
     pub y: f64,
@@ -87,7 +87,7 @@ fn bindgen_test_layout_ClipperPointD() {
     );
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq)]
 #[cfg_attr(
 	feature = "serde",
 	derive(serde::Serialize, serde::Deserialize)
