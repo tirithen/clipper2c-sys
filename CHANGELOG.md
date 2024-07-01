@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.3](https://github.com/tirithen/clipper2c-sys/compare/v0.1.2...v0.1.3) (2024-07-01)
+
+
+### Features
+
+* add common derive macros to bindgen structs ([cee7912](https://github.com/tirithen/clipper2c-sys/commit/cee79122e6e15a8dfc0ddf0516e8724c97a168b9))
+
 ### [0.1.2](https://github.com/tirithen/clipper2c-sys/compare/v0.1.1...v0.1.2) (2024-06-01)
 
 
