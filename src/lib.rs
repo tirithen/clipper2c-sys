@@ -8,9 +8,6 @@
 #[cfg(test)]
 mod test;
 
-#[cfg(feature = "serde")]
-use serde::{Deserialize, Serialize};
-
 #[cfg(all(not(feature = "update-bindings"), feature = "generate-bindings"))]
 include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
 
