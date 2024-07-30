@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.15)
-project(Clipper2 VERSION 1.3.0 LANGUAGES C CXX)
+project(Clipper2 VERSION 1.4.0 LANGUAGES C CXX)
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 if(NOT DEFINED CMAKE_CXX_STANDARD OR CMAKE_CXX_STANDARD LESS 17)
@@ -9,7 +9,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-# CLIPPER2_HI_PRECISION: See GetIntersectPoint() in clipper.core.h 
+# CLIPPER2_HI_PRECISION: See GetIntersectPoint() in clipper.core.h
 option(CLIPPER2_HI_PRECISION "Caution: enabling this will compromise performance" OFF)
 
 option(CLIPPER2_UTILS "Build utilities" ON)
@@ -31,7 +31,7 @@ endif ()
 
 include(GNUInstallDirs)
 set(CLIPPER2_INC_FOLDER ${PROJECT_SOURCE_DIR}/Clipper2Lib/include/clipper2)
-configure_file(clipper.version.in 
+configure_file(clipper.version.in
   ${CLIPPER2_INC_FOLDER}/clipper.version.h NEWLINE_STYLE UNIX)
 
 set(CLIPPER2_INC
@@ -65,7 +65,7 @@ if (NOT (CLIPPER2_USINGZ STREQUAL "ONLY"))
   )
 
   target_include_directories(
-    Clipper2 PUBLIC 
+    Clipper2 PUBLIC
       $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/Clipper2Lib/include>
       $<INSTALL_INTERFACE:include>
   )
@@ -90,7 +90,7 @@ if (NOT (CLIPPER2_USINGZ STREQUAL "OFF"))
       $<$<BOOL:${CLIPPER2_HI_PRECISION}>:CLIPPER2_HI_PRECISION>
   )
   target_include_directories(
-    Clipper2Z PUBLIC 
+    Clipper2Z PUBLIC
       $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/Clipper2Lib/include>
       $<INSTALL_INTERFACE:include>
   )
@@ -98,7 +98,7 @@ if (NOT (CLIPPER2_USINGZ STREQUAL "OFF"))
   if (MSVC)
     target_compile_options(Clipper2Z PRIVATE /W4 /WX)
   else()
-    target_compile_options(Clipper2Z PRIVATE -Wall -Wextra -Wpedantic -Werror -Wno-c++20-compat)
+    target_compile_options(Clipper2Z PRIVATE -Wall -Wextra -Wpedantic -Werror -Wno-c++20-compat -Wsign-conversion)
     target_link_libraries(Clipper2Z PUBLIC -lm)
   endif()
 endif()
@@ -228,6 +228,7 @@ endif()
 
   set(ClipperTests_SRC
     Tests/TestExportHeaders.cpp
+    Tests/TestIsCollinear.cpp
     Tests/TestLines.cpp
     Tests/TestOffsets.cpp
     Tests/TestOffsetOrientation.cpp
@@ -314,7 +315,7 @@ include(GNUInstallDirs)
 write_basic_package_version_file("${PROJECT_BINARY_DIR}/Clipper2ConfigVersion.cmake" COMPATIBILITY SameMajorVersion)
 
 configure_package_config_file(
-    "Clipper2Config.cmake.in" 
+    "Clipper2Config.cmake.in"
     "${PROJECT_BINARY_DIR}/Clipper2Config.cmake"
     INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/clipper2
 )
@@ -328,21 +329,21 @@ install(TARGETS ${CLIPPER2_LIBS} EXPORT Clipper2-targets
 )
 
 install(
-    FILES 
-        ${PROJECT_BINARY_DIR}/Clipper2Config.cmake 
-        ${PROJECT_BINARY_DIR}/Clipper2ConfigVersion.cmake 
-    DESTINATION 
+    FILES
+        ${PROJECT_BINARY_DIR}/Clipper2Config.cmake
+        ${PROJECT_BINARY_DIR}/Clipper2ConfigVersion.cmake
+    DESTINATION
         ${CMAKE_INSTALL_LIBDIR}/cmake/clipper2
 )
 
 install(
-    EXPORT 
+    EXPORT
         Clipper2-targets
-    NAMESPACE 
+    NAMESPACE
         Clipper2::
-    FILE 
-        Clipper2Targets.cmake 
-    DESTINATION 
+    FILE
+        Clipper2Targets.cmake
+    DESTINATION
         ${CMAKE_INSTALL_LIBDIR}/cmake/clipper2
 )
 

@@ -157,7 +157,7 @@ namespace Clipper2Lib
         brushColor, penColor, penWidth, showCoords, false));
     }
 
-    public void AddOpenPath(Path64 path,  uint penColor, 
+    public void AddOpenPath(Path64 path,  uint penColor,
       double penWidth, bool showCoords = false)
     {
       Paths64 tmp = new Paths64();
@@ -165,7 +165,7 @@ namespace Clipper2Lib
       AddOpenPaths(tmp, penColor, penWidth, showCoords);
     }
 
-    public void AddOpenPath(PathD path, uint penColor, 
+    public void AddOpenPath(PathD path, uint penColor,
       double penWidth, bool showCoords = false)
     {
       PathsD tmp = new PathsD();
@@ -181,7 +181,7 @@ namespace Clipper2Lib
         0x0, penColor, penWidth, showCoords, true));
     }
 
-    public void AddOpenPaths(PathsD paths, uint penColor, 
+    public void AddOpenPaths(PathsD paths, uint penColor,
       double penWidth, bool showCoords = false)
     {
       if (paths.Count == 0) return;
@@ -283,17 +283,17 @@ namespace Clipper2Lib
 
         if (pi.ShowCoords)
         {
-          writer.Write("<g font-family=\"{0}\" font-size=\"{1}\" fill=\"{2}\">\n", 
+          writer.Write("<g font-family=\"{0}\" font-size=\"{1}\" fill=\"{2}\">\n",
             coordStyle.FontName, coordStyle.FontSize, ColorToHtml(coordStyle.FontColor));
           foreach (PathD path in pi.paths)
           {
             foreach (PointD pt in path)
             {
 #if USINGZ
-              writer.Write("<text x=\"{0:f2}\" y=\"{1:f2}\">{2:f2},{3:f2},{4}</text>\n", 
+              writer.Write("<text x=\"{0:f2}\" y=\"{1:f2}\">{2:f2},{3:f2},{4}</text>\n",
                 (pt.x * scale + offsetX), (pt.y * scale + offsetY), pt.x, pt.y, pt.z);
 #else
-              writer.Write("<text x=\"{0:f2}\" y=\"{1:f2}\">{2:f2},{3:f2}</text>\n", 
+              writer.Write("<text x=\"{0:f2}\" y=\"{1:f2}\">{2:f2},{3:f2}</text>\n",
                 (pt.x * scale + offsetX), (pt.y * scale + offsetY), pt.x, pt.y);
 #endif
             }
@@ -305,9 +305,9 @@ namespace Clipper2Lib
       foreach (TextInfo captionInfo in textInfos)
       {
         writer.Write("<g font-family=\"Verdana\" font-style=\"normal\" " +
-                     "font-weight=\"normal\" font-size=\"{0}\" fill=\"{1}\">\n", 
+                     "font-weight=\"normal\" font-size=\"{0}\" fill=\"{1}\">\n",
                      captionInfo.fontSize, ColorToHtml(captionInfo.fontColor));
-        writer.Write("<text x=\"{0:f2}\" y=\"{1:f2}\">{2}</text>\n</g>\n", 
+        writer.Write("<text x=\"{0:f2}\" y=\"{1:f2}\">{2}</text>\n</g>\n",
           captionInfo.posX * scale + offsetX, captionInfo.posY * scale + offsetY, captionInfo.text);
       }
 

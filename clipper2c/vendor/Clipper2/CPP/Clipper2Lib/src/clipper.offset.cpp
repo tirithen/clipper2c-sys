@@ -1,6 +1,6 @@
 /*******************************************************************************
 * Author    :  Angus Johnson                                                   *
-* Date      :  17 April 2024                                                   *
+* Date      :  24 July 2024                                                    *
 * Website   :  http://www.angusj.com                                           *
 * Copyright :  Angus Johnson 2010-2024                                         *
 * Purpose   :  Path Offset (Inflate/Shrink)                                    *
@@ -20,17 +20,17 @@ const double floating_point_tolerance = 1e-12;
 // Miscellaneous methods
 //------------------------------------------------------------------------------
 
-int GetLowestClosedPathIdx(const Paths64& paths)
+std::optional<size_t> GetLowestClosedPathIdx(const Paths64& paths)
 {
-	int result = -1;
+    std::optional<size_t> result;
 	Point64 botPt = Point64(INT64_MAX, INT64_MIN);
 	for (size_t i = 0; i < paths.size(); ++i)
 	{
 		for (const Point64& pt : paths[i])
 		{
-			if ((pt.y < botPt.y) || 
+			if ((pt.y < botPt.y) ||
 				((pt.y == botPt.y) && (pt.x >= botPt.x))) continue;
-		  result = static_cast<int>(i);
+            result = i;
 			botPt.x = pt.x;
 			botPt.y = pt.y;
 		}
@@ -38,13 +38,23 @@ int GetLowestClosedPathIdx(const Paths64& paths)
 	return result;
 }
 
-PointD GetUnitNormal(const Point64& pt1, const Point64& pt2)
+inline double Hypot(double x, double y)
+{
+	// given that this is an internal function, and given the x and y parameters
+	// will always be coordinate values (or the difference between coordinate values),
+	// x and y should always be within INT64_MIN to INT64_MAX. Consequently,
+	// there should be no risk that the following computation will overflow
+	// see https://stackoverflow.com/a/32436148/359538
+	return std::sqrt(x * x + y * y);
+}
+
+static PointD GetUnitNormal(const Point64& pt1, const Point64& pt2)
 {
 	double dx, dy, inverse_hypot;
 	if (pt1 == pt2) return PointD(0.0, 0.0);
 	dx = static_cast<double>(pt2.x - pt1.x);
 	dy = static_cast<double>(pt2.y - pt1.y);
-	inverse_hypot = 1.0 / hypot(dx, dy);
+	inverse_hypot = 1.0 / Hypot(dx, dy);
 	dx *= inverse_hypot;
 	dy *= inverse_hypot;
 	return PointD(dy, -dx);
@@ -53,12 +63,6 @@ PointD GetUnitNormal(const Point64& pt1, const Point64& pt2)
 inline bool AlmostZero(double value, double epsilon = 0.001)
 {
 	return std::fabs(value) < epsilon;
-}
-
-inline double Hypot(double x, double y)
-{
-	//see https://stackoverflow.com/a/32436148/359538
-	return std::sqrt(x * x + y * y);
 }
 
 inline PointD NormalizeVector(const PointD& vec)
@@ -79,7 +83,7 @@ inline bool IsClosedPath(EndType et)
 	return et == EndType::Polygon || et == EndType::Joined;
 }
 
-inline Point64 GetPerpendic(const Point64& pt, const PointD& norm, double delta)
+static inline Point64 GetPerpendic(const Point64& pt, const PointD& norm, double delta)
 {
 #ifdef USINGZ
 	return Point64(pt.x + norm.x * delta, pt.y + norm.y * delta, pt.z);
@@ -129,11 +133,11 @@ ClipperOffset::Group::Group(const Paths64& _paths, JoinType _join_type, EndType 
 		// the lowermost path must be an outer path, so if its orientation is negative,
 		// then flag the whole group is 'reversed' (will negate delta etc.)
 		// as this is much more efficient than reversing every path.
-		is_reversed = (lowest_path_idx >= 0) && Area(paths_in[lowest_path_idx]) < 0;
+    is_reversed = (lowest_path_idx.has_value()) && Area(paths_in[lowest_path_idx.value()]) < 0;
 	}
 	else
 	{
-		lowest_path_idx = -1;
+    lowest_path_idx = std::nullopt;
 		is_reversed = false;
 	}
 }
@@ -315,17 +319,19 @@ void ClipperOffset::OffsetPoint(Group& group, const Path64& path, size_t j, size
 
 	if (cos_a > -0.999 && (sin_a * group_delta_ < 0)) // test for concavity first (#593)
 	{
-		// is concave (so insert 3 points that will create a negative region)
+		// is concave
+		// by far the simplest way to construct concave joins, especially those joining very
+		// short segments, is to insert 3 points that produce negative regions. These regions
+		// will be removed later by the finishing union operation. This is also the best way
+		// to ensure that path reversals (ie over-shrunk paths) are removed.
 #ifdef USINGZ
 		path_out.push_back(Point64(GetPerpendic(path[j], norms[k], group_delta_), path[j].z));
 #else
 		path_out.push_back(GetPerpendic(path[j], norms[k], group_delta_));
 #endif
-		
-		// this extra point is the only simple way to ensure that path reversals
-		// (ie over-shrunk paths) are fully cleaned out with the trailing union op.
-		// However it's probably safe to skip this whenever an angle is almost flat.
-		if (cos_a < 0.99) path_out.push_back(path[j]); // (#405)
+
+		// when the angle is almost flat (cos_a ~= 1), it's safe to skip this middle point
+		if (cos_a < 0.999) path_out.push_back(path[j]); // (#405, #873)
 
 #ifdef USINGZ
 		path_out.push_back(Point64(GetPerpendic(path[j], norms[j], group_delta_), path[j].z));
@@ -356,7 +362,7 @@ void ClipperOffset::OffsetPolygon(Group& group, const Path64& path)
 {
 	path_out.clear();
 	for (Path64::size_type j = 0, k = path.size() - 1; j < path.size(); k = j, ++j)
-		OffsetPoint(group, path, j, k);	
+		OffsetPoint(group, path, j, k);
 	solution->push_back(path_out);
 }
 
@@ -366,7 +372,7 @@ void ClipperOffset::OffsetOpenJoined(Group& group, const Path64& path)
 	Path64 reverse_path(path);
 	std::reverse(reverse_path.begin(), reverse_path.end());
 
-	//rebuild normals 
+	//rebuild normals
 	std::reverse(norms.begin(), norms.end());
 	norms.push_back(norms[0]);
 	norms.erase(norms.begin());
@@ -441,7 +447,7 @@ void ClipperOffset::DoGroupOffset(Group& group)
 	{
 		// a straight path (2 points) can now also be 'polygon' offset
 		// where the ends will be treated as (180 deg.) joins
-		if (group.lowest_path_idx < 0) delta_ = std::abs(delta_);
+        if (!group.lowest_path_idx.has_value()) delta_ = std::abs(delta_);
 		group_delta_ = (group.is_reversed) ? -delta_ : delta_;
 	}
 	else
@@ -491,7 +497,7 @@ void ClipperOffset::DoGroupOffset(Group& group)
 			if (group.join_type == JoinType::Round)
 			{
 				double radius = abs_delta;
-				int steps = static_cast<int>(std::ceil(steps_per_rad_ * 2 * PI)); //#617
+                size_t steps = steps_per_rad_ > 0 ? static_cast<size_t>(std::ceil(steps_per_rad_ * 2 * PI)) : 0; //#617
 				path_out = Ellipse(pt, radius, radius, steps);
 #ifdef USINGZ
 				for (auto& p : path_out) p.z = pt.z;

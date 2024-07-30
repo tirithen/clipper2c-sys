@@ -102,7 +102,7 @@ namespace ClipperDllDemo
       Marshal.Copy(paths, len, 0, 1);
       long[] result = new long[len[0]];
       Marshal.Copy(paths, result, 0, (int)len[0]);
-      return result; 
+      return result;
     }
 
     // Define DLL exported functions /////////////////////
@@ -141,7 +141,7 @@ namespace ClipperDllDemo
 
       //////////////////////////////////////////////////////////////////////
       // Use Dynamically Linked C++ compiled library (ie use the DLL)
-      // NB: time will include ALL the overhead of swapping path structures 
+      // NB: time will include ALL the overhead of swapping path structures
       Stopwatch sw1 = Stopwatch.StartNew();
       long[] cSubject = CreateCPaths64(subject);
       long[] cClip = CreateCPaths64(clip);

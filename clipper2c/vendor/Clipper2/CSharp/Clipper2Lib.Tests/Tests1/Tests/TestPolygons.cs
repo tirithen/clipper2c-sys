@@ -25,9 +25,9 @@ namespace Clipper2Lib.UnitTests
         Paths64 solution = new(), solution_open = new();
 
         if (!ClipperFileIO.LoadTestNum("..\\..\\..\\..\\..\\..\\Tests\\Polygons.txt",
-          testNum, subj, subj_open, clip, out ClipType clipType, out FillRule fillrule, 
+          testNum, subj, subj_open, clip, out ClipType clipType, out FillRule fillrule,
           out long storedArea, out int storedCount, out _))
-        {          
+        {
           Assert.IsTrue(testNum > 180, string.Format("Loading test polygon {0} failed.", testNum));
           break;
         }

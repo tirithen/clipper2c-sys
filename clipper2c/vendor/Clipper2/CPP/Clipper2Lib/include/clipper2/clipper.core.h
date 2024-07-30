@@ -1,6 +1,6 @@
 /*******************************************************************************
 * Author    :  Angus Johnson                                                   *
-* Date      :  27 April 2024                                                   *
+* Date      :  12 May 2024                                                     *
 * Website   :  http://www.angusj.com                                           *
 * Copyright :  Angus Johnson 2010-2024                                         *
 * Purpose   :  Core Clipper Library structures and functions                   *
@@ -19,6 +19,7 @@
 #include <algorithm>
 #include <climits>
 #include <numeric>
+#include <optional>
 #include "clipper2/clipper.version.h"
 
 namespace Clipper2Lib
@@ -30,7 +31,7 @@ namespace Clipper2Lib
   public:
     explicit Clipper2Exception(const char* description) :
       m_descr(description) {}
-    virtual const char* what() const throw() override { return m_descr.c_str(); }
+    virtual const char* what() const noexcept override { return m_descr.c_str(); }
   private:
     std::string m_descr;
   };
@@ -361,6 +362,22 @@ namespace Clipper2Lib
         top == other.top && bottom == other.bottom;
     }
 
+    Rect<T>& operator+=(const Rect<T>& other)
+    {
+      left = (std::min)(left, other.left);
+      top = (std::min)(top, other.top);
+      right = (std::max)(right, other.right);
+      bottom = (std::max)(bottom, other.bottom);
+      return *this;
+    }
+
+    Rect<T> operator+(const Rect<T>& other) const
+    {
+      Rect<T> result = *this;
+      result += other;
+      return result;
+    }
+
     friend std::ostream& operator<<(std::ostream& os, const Rect<T>& rect) {
       os << "(" << rect.left << "," << rect.top << "," << rect.right << "," << rect.bottom << ") ";
       return os;
@@ -382,10 +399,10 @@ namespace Clipper2Lib
     }
     else
     {
-      result.left = rect.left * scale;
-      result.top = rect.top * scale;
-      result.right = rect.right * scale;
-      result.bottom = rect.bottom * scale;
+      result.left = static_cast<T1>(rect.left * scale);
+      result.top = static_cast<T1>(rect.top * scale);
+      result.right = static_cast<T1>(rect.right * scale);
+      result.bottom = static_cast<T1>(rect.bottom * scale);
     }
     return result;
   }
@@ -437,10 +454,10 @@ namespace Clipper2Lib
     T ymax = std::numeric_limits<T>::lowest();
     for (const auto& p : path)
     {
-      if (p.x < xmin) xmin = p.x;
-      if (p.x > xmax) xmax = p.x;
-      if (p.y < ymin) ymin = p.y;
-      if (p.y > ymax) ymax = p.y;
+      if (p.x < xmin) xmin = static_cast<T>(p.x);
+      if (p.x > xmax) xmax = static_cast<T>(p.x);
+      if (p.y < ymin) ymin = static_cast<T>(p.y);
+      if (p.y > ymax) ymax = static_cast<T>(p.y);
     }
     return Rect<T>(xmin, ymin, xmax, ymax);
   }
@@ -455,10 +472,10 @@ namespace Clipper2Lib
     for (const Path<T2>& path : paths)
       for (const Point<T2>& p : path)
       {
-        if (p.x < xmin) xmin = p.x;
-        if (p.x > xmax) xmax = p.x;
-        if (p.y < ymin) ymin = p.y;
-        if (p.y > ymax) ymax = p.y;
+        if (p.x < xmin) xmin = static_cast<T>(p.x);
+        if (p.x > xmax) xmax = static_cast<T>(p.x);
+        if (p.y < ymin) ymin = static_cast<T>(p.y);
+        if (p.y > ymax) ymax = static_cast<T>(p.y);
       }
     return Rect<T>(xmin, ymin, xmax, ymax);
   }
@@ -659,16 +676,74 @@ namespace Clipper2Lib
     CheckPrecisionRange(precision, error_code);
   }
 
+  inline int TriSign(int64_t x) // returns 0, 1 or -1
+  {
+    return (x > 0) - (x < 0);
+  }
+
+  struct MultiplyUInt64Result
+  {
+    const uint64_t result = 0;
+    const uint64_t carry = 0;
+
+    bool operator==(const MultiplyUInt64Result& other) const
+    {
+      return result == other.result && carry == other.carry;
+    };
+  };
+
+  inline MultiplyUInt64Result Multiply(uint64_t a, uint64_t b) // #834, #835
+  {
+    const auto lo = [](uint64_t x) { return x & 0xFFFFFFFF; };
+    const auto hi = [](uint64_t x) { return x >> 32; };
+
+    const uint64_t x1 = lo(a) * lo(b);
+    const uint64_t x2 = hi(a) * lo(b) + hi(x1);
+    const uint64_t x3 = lo(a) * hi(b) + lo(x2);
+    const uint64_t result = lo(x3) << 32 | lo(x1);
+    const uint64_t carry = hi(a) * hi(b) + hi(x2) + hi(x3);
+
+    return { result, carry };
+  }
+
+  // returns true if (and only if) a * b == c * d
+  inline bool ProductsAreEqual(int64_t a, int64_t b, int64_t c, int64_t d)
+  {
+#if (defined(__clang__) || defined(__GNUC__)) && UINTPTR_MAX >= UINT64_MAX
+    const auto ab = static_cast<__int128_t>(a) * static_cast<__int128_t>(b);
+    const auto cd = static_cast<__int128_t>(c) * static_cast<__int128_t>(d);
+    return ab == cd;
+#else
+    // nb: unsigned values needed for calculating overflow carry
+    const auto abs_a = static_cast<uint64_t>(std::abs(a));
+    const auto abs_b = static_cast<uint64_t>(std::abs(b));
+    const auto abs_c = static_cast<uint64_t>(std::abs(c));
+    const auto abs_d = static_cast<uint64_t>(std::abs(d));
+
+    const auto abs_ab = Multiply(abs_a, abs_b);
+    const auto abs_cd = Multiply(abs_c, abs_d);
+
+    // nb: it's important to differentiate 0 values here from other values
+    const auto sign_ab = TriSign(a) * TriSign(b);
+    const auto sign_cd = TriSign(c) * TriSign(d);
+
+    return abs_ab == abs_cd && sign_ab == sign_cd;
+#endif
+  }
+
   template <typename T>
   inline bool IsCollinear(const Point<T>& pt1,
     const Point<T>& sharedPt, const Point<T>& pt2) // #777
   {
-    const double a = static_cast<double>(sharedPt.x - pt1.x);
-    const double b = static_cast<double>(pt2.y - sharedPt.y);
-    const double c = static_cast<double>(sharedPt.y - pt1.y);
-    const double d = static_cast<double>(pt2.x - sharedPt.x);
-    return a * b == c * d;
+    const auto a = sharedPt.x - pt1.x;
+    const auto b = pt2.y - sharedPt.y;
+    const auto c = sharedPt.y - pt1.y;
+    const auto d = pt2.x - sharedPt.x;
+    // When checking for collinearity with very large coordinate values
+    // then ProductsAreEqual is more accurate than using CrossProduct.
+    return ProductsAreEqual(a, b, c, d);
   }
+
 
   template <typename T>
   inline double CrossProduct(const Point<T>& pt1, const Point<T>& pt2, const Point<T>& pt3) {
@@ -858,9 +933,9 @@ namespace Clipper2Lib
   }
 
   template<typename T>
-  inline int GetSign(const T& val) 
-  { 
-    if (!val) return 0; 
+  inline int GetSign(const T& val)
+  {
+    if (!val) return 0;
     return (val > 0) ? 1 : -1;
   }
 

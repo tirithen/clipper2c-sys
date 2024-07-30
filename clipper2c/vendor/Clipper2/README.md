@@ -7,12 +7,12 @@
 The <b>Clipper2</b> library performs **intersection**, **union**, **difference** and **XOR** boolean operations on both simple and complex polygons. It also performs polygon offsetting. This is a major update of my original <a href="https://sourceforge.net/projects/polyclipping/"><b>Clipper</b></a> library that was written over 10 years ago. That library I'm now calling <b>Clipper1</b>, and while it still works very well, Clipper2 is [better](http://www.angusj.com/clipper2/Docs/Changes.htm) in just about every way.
 
 ### Compilers
-<b>Clipper2</b> can be compiled using either C++, or C#, or Delphi Pascal. The library can also be accessed from other programming languages by dynamically linking to exported functions in the [C++ compiled Clipper2 library](https://github.com/AngusJohnson/Clipper2/tree/main/DLL). (Since the C++ compiled code is [measurably](https://www.angusj.com/clipper2/Docs/Changes.htm) faster, C# and Delphi developers may also prefer this approach in applications where the library's performance is critical.) 
+<b>Clipper2</b> can be compiled using either C++, or C#, or Delphi Pascal. The library can also be accessed from other programming languages by dynamically linking to exported functions in the [C++ compiled Clipper2 library](https://github.com/AngusJohnson/Clipper2/tree/main/DLL). (Since the C++ compiled code is [measurably](https://www.angusj.com/clipper2/Docs/Changes.htm) faster, C# and Delphi developers may also prefer this approach in applications where the library's performance is critical.)
 | Lang. | Requirements |
 | --- | --- |
-| [**C++:**](https://github.com/AngusJohnson/Clipper2/tree/main/CPP) | Requires C++17 (could be modified to C++11 with relatively minor changes), **or**| 
-| [**C#:**](https://github.com/AngusJohnson/Clipper2/tree/main/CSharp) | The library uses Standard Library 2.0 but the sample code uses .NET6, **or**| 
-| [**Delphi:**](https://github.com/AngusJohnson/Clipper2/tree/main/Delphi) | Compiles with any version of Delphi from version 7 to current.| 
+| [**C++:**](https://github.com/AngusJohnson/Clipper2/tree/main/CPP) | Requires C++17 (could be modified to C++11 with relatively minor changes), **or**|
+| [**C#:**](https://github.com/AngusJohnson/Clipper2/tree/main/CSharp) | The library uses Standard Library 2.0 but the sample code uses .NET6, **or**|
+| [**Delphi:**](https://github.com/AngusJohnson/Clipper2/tree/main/Delphi) | Compiles with any version of Delphi from version 7 to current.|
 
 ### Documentation
 
@@ -34,7 +34,7 @@ The <b>Clipper2</b> library performs **intersection**, **union**, **difference**
       clip.Add(Clipper.MakePath(new int[] { 98, 63, 4, 68, 77, 8, 52, 100, 19, 12 }));
       Paths64 solution = Clipper.Intersect(subj, clip, FillRule.NonZero);</pre>
 <pre>      //Delphi
-      var 
+      var
         subject, clip, solution: TPaths64;
       begin
         SetLength(subject, 1);

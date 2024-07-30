@@ -98,7 +98,7 @@ namespace Clipper2Lib
       {
         string? s = reader.ReadLine();
         if (s == null) break;
-        
+
         if (s.IndexOf("CAPTION: ", StringComparison.Ordinal) == 0)
         {
           num--;

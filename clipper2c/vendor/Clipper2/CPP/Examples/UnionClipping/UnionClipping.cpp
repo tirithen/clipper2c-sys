@@ -1,6 +1,6 @@
 #include <cstdlib>
 #include <string>
-#include <chrono> 
+#include <chrono>
 
 #include "clipper2/clipper.h"
 #include "../../Utils/clipper.svg.utils.h"
@@ -53,7 +53,7 @@ void DoDiamonds()
   shape.push_back(Point64(0, size));
 
   Paths64 subjects, solution;
-  
+
   for (int i = 0; i < h / size; i += 2)
   {
     for (int j = 0; j < w / size; ++j)
@@ -98,7 +98,7 @@ void DoSquares()
   //SaveTest("squares.txt", false, &subjects, nullptr, nullptr, 0, 0, ClipType::Union, FillRule::NonZero);
 
   solution = Union(subjects, fillrule);
-  
+
   SvgWriter svg;
   SvgAddSubject(svg, subjects, fillrule);
   SvgAddSolution(svg, solution, fillrule, false);

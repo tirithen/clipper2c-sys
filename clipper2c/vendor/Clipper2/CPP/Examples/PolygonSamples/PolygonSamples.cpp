@@ -1,8 +1,8 @@
 #include <cstdlib>
 #include <string>
-#include <chrono> 
+#include <chrono>
 #include <random>
- 
+
 #include "clipper2/clipper.h"
 #include "../../Utils/clipper.svg.utils.h"
 #include "../../Utils/ClipFileLoad.h"
@@ -16,7 +16,7 @@ void DoLoopThruPolygons(int start = 0, int end = 0);
 void System(const std::string &filename);
 
 int main()
-{  
+{
   std::cout.imbue(std::locale(""));
   srand((unsigned)time(0));
 
@@ -56,8 +56,8 @@ void DoLoopThruPolygons(int start, int end)
         0 :
         std::fabs((area / (double)stored_area) - 1.0);
       int count = (int)(solution.size());
-      double count_diff = stored_count <= 0 ? 
-        0 : 
+      double count_diff = stored_count <= 0 ?
+        0 :
         std::abs(count - stored_count)/(double)stored_count;
       if (count_diff > 0.02 || (area_diff > 0.1))
       {
@@ -76,7 +76,7 @@ void DoLoopThruPolygons(int start, int end)
     SvgWriter svg;
     SvgAddSubject(svg, subject, fr);
     SvgAddClip(svg, clip, fr);
-    if (fr == FillRule::Negative) 
+    if (fr == FillRule::Negative)
       for (auto& path: solution) std::reverse(path.begin(), path.end());
     SvgAddSolution(svg, solution, fr, false);
     SvgAddCaption(svg, std::to_string(test_number), 20, 20);

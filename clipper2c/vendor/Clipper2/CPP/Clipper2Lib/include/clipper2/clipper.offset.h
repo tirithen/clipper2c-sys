@@ -34,7 +34,7 @@ private:
 	class Group {
 	public:
 		Paths64 paths_in;
-		int lowest_path_idx = -1;
+        std::optional<size_t> lowest_path_idx{};
 		bool is_reversed = false;
 		JoinType join_type;
 		EndType end_type;
@@ -95,7 +95,7 @@ public:
 	void AddPath(const Path64& path, JoinType jt_, EndType et_);
 	void AddPaths(const Paths64& paths, JoinType jt_, EndType et_);
 	void Clear() { groups_.clear(); norms.clear(); };
-	
+
 	void Execute(double delta, Paths64& paths);
 	void Execute(double delta, PolyTree64& polytree);
 	void Execute(DeltaCallback64 delta_cb, Paths64& paths);
@@ -109,7 +109,7 @@ public:
 
 	bool PreserveCollinear() const { return preserve_collinear_; }
 	void PreserveCollinear(bool preserve_collinear){preserve_collinear_ = preserve_collinear;}
-	
+
 	bool ReverseSolution() const { return reverse_solution_; }
 	void ReverseSolution(bool reverse_solution) {reverse_solution_ = reverse_solution;}
 

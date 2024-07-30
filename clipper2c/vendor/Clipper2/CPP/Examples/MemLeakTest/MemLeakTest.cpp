@@ -1,7 +1,7 @@
 #include <cstdlib>
 #include <string>
-#include <chrono> 
- 
+#include <chrono>
+
 #include "clipper2/clipper.h"
 
 using namespace Clipper2Lib;
@@ -13,7 +13,7 @@ Path64 MakeRandomPoly(int width, int height, unsigned vertCnt);
 void System(const std::string &filename);
 
 int main()
-{  
+{
   std::cout.imbue(std::locale(""));
   srand((unsigned)time(0));
   DoMemoryLeakTest();

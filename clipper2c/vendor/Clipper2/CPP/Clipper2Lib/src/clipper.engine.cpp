@@ -31,8 +31,8 @@ namespace Clipper2Lib {
 
   static const Rect64 invalid_rect = Rect64(false);
 
-  // Every closed path (ie polygon) is made up of a series of vertices forming edge 
-  // 'bounds' that alternate between ascending bounds (containing edges going up 
+  // Every closed path (ie polygon) is made up of a series of vertices forming edge
+  // 'bounds' that alternate between ascending bounds (containing edges going up
   // relative to the Y-axis) and descending bounds. 'Local Minima' refers to
   // vertices where ascending and descending bounds join at the bottom, and
   // 'Local Maxima' are where ascending and descending bounds join at the top.
@@ -618,9 +618,9 @@ namespace Clipper2Lib {
     std::vector<Vertex*>& vertexLists, LocalMinimaList& locMinList)
   {
     const auto total_vertex_count =
-      std::accumulate(paths.begin(), paths.end(), 0,
+      std::accumulate(paths.begin(), paths.end(), size_t(0),
         [](const auto& a, const Path64& path)
-        {return a + static_cast<unsigned>(path.size()); });
+        {return a + path.size(); });
     if (total_vertex_count == 0) return;
 
     Vertex* vertices = new Vertex[total_vertex_count], * v = vertices;
@@ -1803,14 +1803,14 @@ namespace Clipper2Lib {
 
       switch (fillrule_)
       {
-      case FillRule::Positive: 
-        if (edge_c->wind_cnt != 1) return; 
+      case FillRule::Positive:
+        if (edge_c->wind_cnt != 1) return;
         break;
-      case FillRule::Negative: 
-        if (edge_c->wind_cnt != -1) return; 
+      case FillRule::Negative:
+        if (edge_c->wind_cnt != -1) return;
         break;
-      default: 
-        if (std::abs(edge_c->wind_cnt) != 1) return; 
+      default:
+        if (std::abs(edge_c->wind_cnt) != 1) return;
       }
 
 #ifdef USINGZ
@@ -1931,7 +1931,7 @@ namespace Clipper2Lib {
     const bool e1_windcnt_in_01 = old_e1_windcnt == 0 || old_e1_windcnt == 1;
     const bool e2_windcnt_in_01 = old_e2_windcnt == 0 || old_e2_windcnt == 1;
 
-    if ((!IsHotEdge(e1) && !e1_windcnt_in_01) || 
+    if ((!IsHotEdge(e1) && !e1_windcnt_in_01) ||
       (!IsHotEdge(e2) && !e2_windcnt_in_01))
         return;
 

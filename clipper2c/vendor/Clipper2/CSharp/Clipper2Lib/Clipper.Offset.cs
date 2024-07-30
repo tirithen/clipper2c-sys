@@ -1,6 +1,6 @@
 ﻿/*******************************************************************************
 * Author    :  Angus Johnson                                                   *
-* Date      :  17 April 2024                                                   *
+* Date      :  24 July 2024                                                    *
 * Website   :  http://www.angusj.com                                           *
 * Copyright :  Angus Johnson 2010-2024                                         *
 * Purpose   :  Path Offset (Inflate/Shrink)                                    *
@@ -234,8 +234,8 @@ namespace Clipper2Lib
     {
       DeltaCallback = deltaCallback;
       Execute(1.0, solution);
-    }    
-    
+    }
+
     internal static int GetLowestPathIdx(Paths64 paths)
     {
       int result = -1;
@@ -364,10 +364,10 @@ namespace Clipper2Lib
         double absDelta = Math.Abs(_groupDelta);
 #if USINGZ
         pt1 = new Point64(
-          path[j].X - absDelta * _normals[j].x, 
+          path[j].X - absDelta * _normals[j].x,
           path[j].Y - absDelta * _normals[j].y, path[j].Z);
         pt2 = new Point64(
-          path[j].X + absDelta * _normals[j].x, 
+          path[j].X + absDelta * _normals[j].x,
           path[j].Y + absDelta * _normals[j].y, path[j].Z);
 #else
         pt1 = new Point64(
@@ -434,7 +434,7 @@ namespace Clipper2Lib
         PointD pt = IntersectPoint(pt1, pt2, pt3, pt4);
 #if USINGZ
         pt.z = ptQ.z;
-#endif    
+#endif
         //get the second intersect point through reflecion
         pathOut.Add(new Point64(ReflectPoint(pt, ptQ)));
         pathOut.Add(new Point64(pt));
@@ -513,8 +513,8 @@ namespace Clipper2Lib
     {
       int cnt = path.Count;
       _normals.Clear();
+      if (cnt == 0) return;
       _normals.EnsureCapacity(cnt);
-
       for (int i = 0; i < cnt - 1; i++)
         _normals.Add(GetUnitNormal(path[i], path[i + 1]));
       _normals.Add(GetUnitNormal(path[cnt - 1], path[0]));
@@ -535,7 +535,7 @@ namespace Clipper2Lib
       else if (sinA < -1.0) sinA = -1.0;
 
       if (DeltaCallback != null)
-      { 
+      {
         _groupDelta = DeltaCallback(path, _normals, j, k);
         if (group.pathsReversed) _groupDelta = -_groupDelta;
       }
@@ -548,16 +548,20 @@ namespace Clipper2Lib
       if (cosA > -0.999 && (sinA * _groupDelta < 0)) // test for concavity first (#593)
       {
         // is concave
+        // by far the simplest way to construct concave joins, especially those joining very
+        // short segments, is to insert 3 points that produce negative regions. These regions
+        // will be removed later by the finishing union operation. This is also the best way
+        // to ensure that path reversals (ie over-shrunk paths) are removed.
         pathOut.Add(GetPerpendic(path[j], _normals[k]));
-        // this extra point is the only simple way to ensure that path reversals
-        // (ie over-shrunk paths) are fully cleaned out with the trailing union op.
-        // However it's probably safe to skip this whenever an angle is almost flat.
-        if (cosA < 0.99) pathOut.Add(path[j]); // (#405)
+
+        // when the angle is almost flat (cos_a ~= 1), it's safe to skip this middle point
+        if (cosA < 0.999) pathOut.Add(path[j]); // (#405, #873)
+
         pathOut.Add(GetPerpendic(path[j], _normals[j]));
       }
       else if ((cosA > 0.999) && (_joinType != JoinType.Round))
       {
-        // almost straight - less than 2.5 degree (#424, #482, #526 & #724) 
+        // almost straight - less than 2.5 degree (#424, #482, #526 & #724)
         DoMiter(path, j, k, cosA);
       }
       else if (_joinType == JoinType.Miter)
@@ -600,7 +604,7 @@ namespace Clipper2Lib
       pathOut = new Path64();
       int highI = path.Count - 1;
 
-      if (DeltaCallback != null) 
+      if (DeltaCallback != null)
         _groupDelta = DeltaCallback(path, _normals, 0, 0);
 
       // do the line start cap
@@ -659,7 +663,7 @@ namespace Clipper2Lib
     {
       if (group.endType == EndType.Polygon)
       {
-        // a straight path (2 points) can now also be 'polygon' offset 
+        // a straight path (2 points) can now also be 'polygon' offset
         // where the ends will be treated as (180 deg.) joins
         if (group.lowestPathIdx < 0) _delta = Math.Abs(_delta);
         _groupDelta = (group.pathsReversed) ? -_delta : _delta;
@@ -680,8 +684,8 @@ namespace Clipper2Lib
         // will be relative to the size of the offset (delta). Obviously very
         //large offsets will almost always require much less precision.
         double arcTol = ArcTolerance > 0.01 ?
-          ArcTolerance :              
-          Math.Log10(2 + absDelta) * InternalClipper.defaultArcTolerance; 
+          ArcTolerance :
+          Math.Log10(2 + absDelta) * InternalClipper.defaultArcTolerance;
         double stepsPer360 = Math.PI / Math.Acos(1 - arcTol / absDelta);
         _stepSin = Math.Sin((2 * Math.PI) / stepsPer360);
         _stepCos = Math.Cos((2 * Math.PI) / stepsPer360);
@@ -729,7 +733,7 @@ namespace Clipper2Lib
           }
           _solution.Add(pathOut);
           continue;
-        } // end of offsetting a single point 
+        } // end of offsetting a single point
 
 
         if (cnt == 2 && group.endType == EndType.Joined)

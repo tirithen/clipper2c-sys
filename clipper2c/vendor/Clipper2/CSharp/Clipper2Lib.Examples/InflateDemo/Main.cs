@@ -39,10 +39,10 @@ namespace ClipperDemo1
         p.AddRange(p0);
       }
       SvgUtils.AddSolution(svg, p, false);
-      p.Clear();  
+      p.Clear();
 
       //rectangle offset - both squared and rounded
-      //nb: using the ClipperOffest class directly here to control 
+      //nb: using the ClipperOffest class directly here to control
       //different join types within the same offset operation
       p.Add(Clipper.MakePath(new int[] { 100,0, 340,0, 340,200, 100,200, 100, 0 }));
       SvgUtils.AddOpenSubject(svg, p);
@@ -75,7 +75,7 @@ namespace ClipperDemo1
       {
         // and don't forget to scale the delta offset
         pd = Clipper.InflatePaths(pd, -2.5, JoinType.Round, EndType.Polygon);
-        // SimplifyPaths - is not essential but it not only 
+        // SimplifyPaths - is not essential but it not only
         // speeds up the loop but it also tidies the result
         pd = Clipper.SimplifyPaths(pd, 0.25);
         solution.AddRange(pd);
@@ -118,7 +118,7 @@ namespace ClipperDemo1
       ClipperOffset co = new();
       co.AddPaths(p, JoinType.Square, EndType.Butt);
       co.Execute(
-        delegate (Path64 path, PathD path_norms, int currPt, int prevPt) 
+        delegate (Path64 path, PathD path_norms, int currPt, int prevPt)
         { return currPt* currPt + 10; } , solution);
 
       string filename = "../../../variable_offset.svg";

@@ -3,7 +3,7 @@
 #include "clipper2/clipper.core.h"
 #include "CommonUtils.h"
 #include "ClipFileLoad.h"
-#include <iomanip> 
+#include <iomanip>
 #include <cstdlib>
 #include <random>
 
@@ -29,7 +29,7 @@ private:
 public:
   SetConsoleTextColor(TextColor color) : _color(color) {};
 
-  static friend std::ostream& operator<< (std::ostream& out, SetConsoleTextColor const& scc)
+  friend std::ostream& operator<< (std::ostream& out, SetConsoleTextColor const& scc)
   {
     return out << "\x1B[" << scc._color << "m";
   }
@@ -180,7 +180,7 @@ static inline Int128 multiply(int64_t lhs, int64_t rhs)
 
 static int64_t divide(Int128 dividend, Int128 divisor)
 {
-  // this function assumes that the parameter values will 
+  // this function assumes that the parameter values will
   // generate a result that fits into a 64bit integer.
   bool negate = (divisor.hi < 0) != (dividend.hi < 0);
   if (dividend.hi < 0) dividend = -dividend;
@@ -231,7 +231,7 @@ static int64_t divide(Int128 dividend, Int128 divisor)
       cntr.lo |= 0x8000000000000000LL;
     cntr.hi >>= 1;
   }
-  if (result.hi || (int64_t)result.lo < 0) 
+  if (result.hi || (int64_t)result.lo < 0)
     return negate ? INT64_MIN : INT64_MAX;
   else
     return negate ? -(int64_t)result.lo : result.lo;
@@ -239,7 +239,7 @@ static int64_t divide(Int128 dividend, Int128 divisor)
 
 static inline int64_t muldiv(Int128 lhs, int64_t rhs, Int128 divisor)
 {
-  // this function assumes that the parameter values will 
+  // this function assumes that the parameter values will
   // generate a result that fits into a 64bit integer.
   int64_t sign = (lhs.is_negative() != divisor.is_negative()) != (rhs < 0) ? -2 : 2;
   if (lhs.is_negative()) lhs.negate();
@@ -276,7 +276,7 @@ typedef std::function<bool(const Point64&, const Point64&,
   const Point64&, const Point64&, Point64&)> GipFunction;
 
 // GIP_Current: This is Clipper2's current GetIntersectPoint.
-// It's definitely the fastest function, but its accuracy declines 
+// It's definitely the fastest function, but its accuracy declines
 // a little when using very large 64bit integers (eg +/-10e17).
 static bool GIP_Current(const Point64& ln1a, const Point64& ln1b,
   const Point64& ln2a, const Point64& ln2b, Point64& ip)
@@ -333,8 +333,8 @@ static bool GIP_Func_F(const Point64& ln1a, const Point64& ln1b,
 }
 
 // GIP_F_Mod: GIP_Func_F except replaces nearbyint with static casts.
-// Surprisingly, while this function is faster that GIP_Func_F here, 
-// it's much slower than both GIP_Func_F and GIP_Current when using it 
+// Surprisingly, while this function is faster that GIP_Func_F here,
+// it's much slower than both GIP_Func_F and GIP_Current when using it
 // as a replacement for GetIntersectPoint() in clipper.core.h.
 static bool GIP_F_Mod(const Point64& ln1a, const Point64& ln1b,
   const Point64& ln2a, const Point64& ln2b, Point64& ip)
@@ -364,7 +364,7 @@ static bool GIP_F_Mod(const Point64& ln1a, const Point64& ln1b,
   return true;
 }
 
-// GIP_128: GetIntersectPoint using 128bit integer precision 
+// GIP_128: GetIntersectPoint using 128bit integer precision
 // This function is the most precise, but it's also very slow.
 static bool GIP_128(const Point64& ln1a, const Point64& ln1b,
   const Point64& ln2a, const Point64& ln2b, Point64& ip)
@@ -394,10 +394,10 @@ static inline GipFunction GetGipFunc(int64_t index)
 {
   switch (index)
   {
-  case 0: return GIP_Current; 
+  case 0: return GIP_Current;
   case 1: return GIP_Func_F;
   case 2: return GIP_F_Mod;
-  case 3: return GIP_128; 
+  case 3: return GIP_128;
   default: throw "Invalid function!";
   }
 }
@@ -407,9 +407,9 @@ static inline std::string GetGipFuncName(int64_t index)
   switch (index)
   {
   case 0: return "GIP_Current";
-  case 1: return "GIP_Func_F "; 
-  case 2: return "GIP_F_Mod  "; 
-  case 3: return "GIP_128    "; 
+  case 1: return "GIP_Func_F ";
+  case 2: return "GIP_F_Mod  ";
+  case 3: return "GIP_128    ";
   default: throw "Invalid function!";
   }
 }
@@ -476,7 +476,7 @@ static void BM_GIP(benchmark::State& state)
 
 static void CustomArguments(benchmark::internal::Benchmark* b)
 {
-  for (int i = 0; i < number_of_test_functions; ++i) 
+  for (int i = 0; i < number_of_test_functions; ++i)
     b->Args({ i });
 }
 
@@ -490,7 +490,7 @@ int main(int argc, char** argv)
   benchmark::Initialize(0, nullptr);
   BENCHMARK(BM_GIP)->Apply(CustomArguments);
 
-  // the closer test segments are to collinear, the less accurate 
+  // the closer test segments are to collinear, the less accurate
   // calculations will be in determining their intersection points.
   const double min_angle_degrees = 0.5;
   const double sine_min_angle = std::sin(min_angle_degrees *PI / 180.0);
@@ -498,8 +498,8 @@ int main(int argc, char** argv)
   bool first_pass = true;
   for (int current_pow10 = 12; current_pow10 <= 18; ++current_pow10)
   {
-    // using random coordinates that are restricted to the specified 
-    // power of 10 range, create multiple TestRecords containing 
+    // using random coordinates that are restricted to the specified
+    // power of 10 range, create multiple TestRecords containing
     // segment pairs that intersect at their midpoints
     int64_t max_coord = static_cast<int64_t>(pow(10, current_pow10));
     for (int64_t i = 0; i < 100000; ++i)
@@ -511,7 +511,7 @@ int main(int argc, char** argv)
       Point64 ip4 = ReflectPoint(ip3, actual);
 
       // Exclude segments that are **almost** collinear.
-      if (std::abs(GetSineFrom3Points(ip1, actual, ip3)) < sine_min_angle) continue;      
+      if (std::abs(GetSineFrom3Points(ip1, actual, ip3)) < sine_min_angle) continue;
       // Alternatively, just exclude segments that are collinear
       //if (!CrossProduct(ip1, actual, ip3)) continue;
 

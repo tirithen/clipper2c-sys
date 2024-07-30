@@ -9,7 +9,7 @@ namespace Clipper2Lib.Benchmark
     {
       public FastConfig()
       {
-        Add(DefaultConfig.Instance); 
+        Add(DefaultConfig.Instance);
         AddJob(Job.Default
             .WithLaunchCount(1)
             .WithWarmupCount(1)

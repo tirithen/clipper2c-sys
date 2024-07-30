@@ -3101,7 +3101,7 @@ begin
         else if Path1InsidePath2(or2.pts, or1.pts) then
         begin
           or2.owner := or1;
-        end 
+        end
         else
           or2.owner := or1.owner;
 
@@ -3112,7 +3112,7 @@ begin
     end else
     begin
       or2.pts := nil;
-      if FUsingPolytree then   
+      if FUsingPolytree then
       begin
         SetOwner(or2, or1);
         MoveSplits(or2, or1); //#618
@@ -3735,10 +3735,10 @@ begin
   for i := 0 to High(splits) do
   begin
     split := GetRealOutRec(splits[i]);
-    if (split = nil) or 
-       (split = outrec) or 
+    if (split = nil) or
+       (split = outrec) or
        (split.recursiveCheck = outrec) then Continue;
-       
+
     split.recursiveCheck := outrec; // prevent infinite loops
     if Assigned(split.splits) and
       CheckSplitOwner(outrec, split.splits) then Exit
@@ -4253,4 +4253,3 @@ end;
 //------------------------------------------------------------------------------
 
 end.
-

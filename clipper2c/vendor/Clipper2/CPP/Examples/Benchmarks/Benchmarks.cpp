@@ -1,7 +1,7 @@
 #include <cstdlib>
 #include <string>
-#include <chrono> 
- 
+#include <chrono>
+
 #include "clipper2/clipper.h"
 #include "../../Utils/clipper.svg.utils.h"
 #include "../../Utils/ClipFileLoad.h"
@@ -13,14 +13,14 @@ using namespace Clipper2Lib;
 const int display_width = 800, display_height = 600;
 
 void RecheckLastBenchmark(bool use_polytree);
-void DoBenchmark(int edge_cnt_start, int edge_cnt_end, 
+void DoBenchmark(int edge_cnt_start, int edge_cnt_end,
   int increment, bool test_polytree = false);
 Path64 MakeRandomPoly(int width, int height, unsigned vertCnt);
 void System(const std::string &filename);
 
 int main()
-{  
-  bool test_polytree = false;//true;// 
+{
+  bool test_polytree = false;//true;//
   srand((unsigned)time(0));
   DoBenchmark(1000, 7000, 1000, test_polytree);
   //RecheckLastBenchmark(test_polytree);
@@ -78,7 +78,7 @@ inline Path64 MakeRandomPoly(int width, int height, unsigned vertCnt)
   return result;
 }
 
-void DoBenchmark(int edge_cnt_start, int edge_cnt_end, 
+void DoBenchmark(int edge_cnt_start, int edge_cnt_end,
   int increment, bool test_polytree)
 {
   ClipType ct = ClipType::Intersection;
@@ -114,7 +114,7 @@ void DoBenchmark(int edge_cnt_start, int edge_cnt_end,
   }
 
   if (test_polytree) solution = PolyTreeToPaths64(polytree);
-    
+
   SvgWriter svg;
   SvgAddSubject(svg, subject, fr);
   SvgAddClip(svg, clip, fr);

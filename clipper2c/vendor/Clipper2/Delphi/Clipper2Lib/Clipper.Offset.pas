@@ -2,7 +2,7 @@ unit Clipper.Offset;
 
 (*******************************************************************************
 * Author    :  Angus Johnson                                                   *
-* Date      :  17 April 2024                                                   *
+* Date      :  24 July 2024                                                    *
 * Website   :  http://www.angusj.com                                           *
 * Copyright :  Angus Johnson 2010-2024                                         *
 * Purpose   :  Path Offset (Inflate/Shrink)                                    *
@@ -236,9 +236,7 @@ end;
 constructor TGroup.Create(const pathsIn: TPaths64; jt: TJoinType; et: TEndType);
 var
   i, len: integer;
-  a: double;
   isJoined: boolean;
-  pb: PBoolean;
 begin
   Self.joinType := jt;
   Self.endType := et;
@@ -345,7 +343,6 @@ var
   i,j, len, steps: Integer;
   r, stepsPer360, arcTol: Double;
   absDelta: double;
-  isShrinking: Boolean;
   rec: TRect64;
   pt0: TPoint64;
 begin
@@ -450,6 +447,7 @@ var
 begin
   len := Length(fInPath);
   SetLength(fNorms, len);
+  if len = 0 then Exit;
   for i := 0 to len-2 do
     fNorms[i] := GetUnitNormal(fInPath[i], fInPath[i+1]);
   fNorms[len -1] := GetUnitNormal(fInPath[len -1], fInPath[0]);
@@ -991,16 +989,19 @@ begin
   if (cosA > -0.999) and (sinA * fGroupDelta < 0) then
   begin
     // is concave
+    // by far the simplest way to construct concave joins, especially those
+    // joining very short segments, is to insert 3 points that produce negative
+    // regions. These regions will be removed later by the finishing union
+    // operation. This is also the best way to ensure that path reversals
+    // (ie over-shrunk paths) are removed.
 {$IFDEF USINGZ}
     AddPoint(GetPerpendic(fInPath[j], fNorms[k], fGroupDelta), fInPath[j].Z);
 {$ELSE}
     AddPoint(GetPerpendic(fInPath[j], fNorms[k], fGroupDelta));
 {$ENDIF}
-		// this extra point is the only simple way to ensure that path reversals
-		// (ie over-shrunk paths) are fully cleaned out with the trailing union op.
-		// However it's probably safe to skip this whenever an angle is almost flat.
-		if (cosA < 0.99) then
-      AddPoint(fInPath[j]); // (#405)
+    // when the angle is almost flat (cos_a ~= 1),
+    // it's safe to skip inserting this middle point
+		if (cosA < 0.999) then AddPoint(fInPath[j]); // (#405, #873)
 {$IFDEF USINGZ}
     AddPoint(GetPerpendic(fInPath[j], fNorms[j], fGroupDelta), fInPath[j].Z);
 {$ELSE}

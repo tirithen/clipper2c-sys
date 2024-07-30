@@ -260,7 +260,7 @@ namespace Clipper2Lib {
       file << "  <g font-family=\"" << ti->font_name << "\" font-size=\"" <<
         ti->font_size << "\" fill=\"" << ColorToHtml(ti->font_color) <<
         "\" fill-opacity=\"" << GetAlphaAsFrac(ti->font_color) << "\">\n";
-      file << "    <text x=\"" << static_cast<int>(ti->x * scale + offsetX) << 
+      file << "    <text x=\"" << static_cast<int>(ti->x * scale + offsetX) <<
         "\" y=\"" << static_cast<int>(ti->y * scale + offsetY) << "\">" <<
         ti->text << "</text>\n  </g>\n\n";
     }

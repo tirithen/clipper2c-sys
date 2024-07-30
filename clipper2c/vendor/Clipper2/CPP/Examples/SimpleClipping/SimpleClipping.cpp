@@ -11,8 +11,8 @@ Path64 MakeRandomPoly(int width, int height, unsigned vertCnt);
 void System(const std::string &filename);
 
 int main()
-{  
-  DoSimpleTest();    
+{
+  DoSimpleTest();
 }
 
 inline Path64 MakeStar(const Point64& center, int radius, int points)
@@ -39,8 +39,8 @@ void DoSimpleTest(bool show_solution_coords)
 
   Paths64 subject, clip;
   subject.push_back(MakeStar(Point64(225, 225), 220, 9));
-  clip.push_back(Ellipse<int64_t>(Point64(225,225), 150, 150));  
-  
+  clip.push_back(Ellipse<int64_t>(Point64(225,225), 150, 150));
+
   //Intersect both shapes and then 'inflate' result -10 (ie deflate)
   solution = Intersect(subject, clip, fr);
   solution = InflatePaths(solution, -10, JoinType::Round, EndType::Polygon);

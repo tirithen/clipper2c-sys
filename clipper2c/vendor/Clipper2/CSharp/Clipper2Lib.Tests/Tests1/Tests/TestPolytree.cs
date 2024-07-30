@@ -16,7 +16,7 @@ namespace Clipper2Lib.UnitTests
       {
         PolyPath64 child = (PolyPath64) pp[i];
         PolyPathContainsPoint(child, pt, ref counter);
-      } 
+      }
     }
 
     private bool PolytreeContainsPoint(PolyTree64 pp, Point64 pt)
@@ -51,7 +51,7 @@ namespace Clipper2Lib.UnitTests
         PolyPath64 child = (PolyPath64) polytree[i];
         if (child.Count > 0 && !PolyPathFullyContainsChildren(child))
           return false;
-      }    
+      }
       return true;
     }
 
@@ -61,7 +61,7 @@ namespace Clipper2Lib.UnitTests
       Paths64 subject = new(), subjectOpen = new(), clip = new();
 
       Assert.IsTrue(ClipperFileIO.LoadTestNum("..\\..\\..\\..\\..\\..\\Tests\\PolytreeHoleOwner2.txt",
-        1, subject, subjectOpen, clip, out ClipType cliptype, out FillRule fillrule, 
+        1, subject, subjectOpen, clip, out ClipType cliptype, out FillRule fillrule,
         out _, out _, out _),
           "Unable to read PolytreeHoleOwner2.txt");
 
@@ -81,7 +81,7 @@ namespace Clipper2Lib.UnitTests
       {
         foreach (Path64 path in subject)
         {
-          Assert.IsTrue(Clipper.PointInPolygon(pt, path) == PointInPolygonResult.IsOutside, 
+          Assert.IsTrue(Clipper.PointInPolygon(pt, path) == PointInPolygonResult.IsOutside,
             "outside point of interest found inside subject");
         }
       }
@@ -114,7 +114,7 @@ namespace Clipper2Lib.UnitTests
       Paths64 solutionPaths = Clipper.PolyTreeToPaths64(solutionTree);
       double a1 = Clipper.Area(solutionPaths), a2 = solutionTree.Area();
 
-      Assert.IsTrue(a1 > 330000, 
+      Assert.IsTrue(a1 > 330000,
         string.Format("solution has wrong area - value expected: 331,052; value returned; {0} ", a1));
 
       Assert.IsTrue(Math.Abs(a1 - a2) < 0.0001,

@@ -71,5 +71,5 @@ namespace Clipper2Lib
       return result;
     }
   }
-  
+
 }

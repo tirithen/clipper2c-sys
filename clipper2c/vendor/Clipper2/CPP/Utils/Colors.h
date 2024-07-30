@@ -44,7 +44,7 @@ Color32 HslToRgb(Hsl hsl)
   return result;
 }
 
-uint32_t RainbowColor(double frac, 
+uint32_t RainbowColor(double frac,
   uint8_t luminance = 128, uint8_t alpha = 255)
 {
   frac = static_cast<double>(frac - static_cast<int>(frac));

@@ -1,6 +1,6 @@
 ﻿/*******************************************************************************
 * Author    :  Angus Johnson                                                   *
-* Date      :  27 April 2024                                                   *
+* Date      :  10 May 2024                                                     *
 * Website   :  http://www.angusj.com                                           *
 * Copyright :  Angus Johnson 2010-2024                                         *
 * Purpose   :  This module contains simple functions that will likely cover    *
@@ -35,7 +35,7 @@ namespace Clipper2Lib
       return BooleanOp(ClipType.Intersection, subject, clip, fillRule);
     }
 
-    public static PathsD Intersect(PathsD subject, PathsD clip, 
+    public static PathsD Intersect(PathsD subject, PathsD clip,
       FillRule fillRule, int precision = 2)
     {
       return BooleanOp(ClipType.Intersection,
@@ -57,7 +57,7 @@ namespace Clipper2Lib
       return BooleanOp(ClipType.Union, subject, null, fillRule);
     }
 
-    public static PathsD Union(PathsD subject, PathsD clip, 
+    public static PathsD Union(PathsD subject, PathsD clip,
       FillRule fillRule, int precision = 2)
     {
       return BooleanOp(ClipType.Union,
@@ -69,7 +69,7 @@ namespace Clipper2Lib
       return BooleanOp(ClipType.Difference, subject, clip, fillRule);
     }
 
-    public static PathsD Difference(PathsD subject, PathsD clip, 
+    public static PathsD Difference(PathsD subject, PathsD clip,
       FillRule fillRule, int precision = 2)
     {
       return BooleanOp(ClipType.Difference,
@@ -81,10 +81,10 @@ namespace Clipper2Lib
       return BooleanOp(ClipType.Xor, subject, clip, fillRule);
     }
 
-    public static PathsD Xor(PathsD subject, PathsD clip, 
+    public static PathsD Xor(PathsD subject, PathsD clip,
       FillRule fillRule, int precision = 2)
     {
-      return BooleanOp(ClipType.Xor, 
+      return BooleanOp(ClipType.Xor,
         subject, clip, fillRule, precision);
     }
 
@@ -102,7 +102,7 @@ namespace Clipper2Lib
     }
 
     public static void BooleanOp(ClipType clipType,
-      Paths64? subject, Paths64? clip, 
+      Paths64? subject, Paths64? clip,
       PolyTree64 polytree, FillRule fillRule)
     {
       if (subject == null) return;
@@ -113,7 +113,7 @@ namespace Clipper2Lib
       c.Execute(clipType, fillRule, polytree);
     }
 
-    public static PathsD BooleanOp(ClipType clipType, PathsD subject, PathsD? clip, 
+    public static PathsD BooleanOp(ClipType clipType, PathsD subject, PathsD? clip,
       FillRule fillRule, int precision = 2)
     {
       PathsD solution = new PathsD();
@@ -172,7 +172,7 @@ namespace Clipper2Lib
       Paths64 tmp = new Paths64 { path };
       return RectClip(rect, tmp);
     }
-    
+
     public static PathsD RectClip(RectD rect, PathsD paths, int precision = 2)
     {
       InternalClipper.CheckPrecision(precision);
@@ -205,7 +205,7 @@ namespace Clipper2Lib
       return RectClipLines(rect, tmp);
     }
 
-    public static PathsD RectClipLines(RectD rect, 
+    public static PathsD RectClipLines(RectD rect,
       PathsD paths, int precision = 2)
     {
       InternalClipper.CheckPrecision(precision);
@@ -654,9 +654,51 @@ namespace Clipper2Lib
 
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static double Sqr(double value)
+    public static double Sqr(double val)
     {
-      return value * value;
+      return val * val;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static double Sqr(long val)
+    {
+      return (double) val * (double) val;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static double DistanceSqr(Point64 pt1, Point64 pt2)
+    {
+      return Sqr(pt1.X - pt2.X) + Sqr(pt1.Y - pt2.Y);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Point64 MidPoint(Point64 pt1, Point64 pt2)
+    {
+      return new Point64((pt1.X + pt2.X) / 2, (pt1.Y + pt2.Y) / 2);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static PointD MidPoint(PointD pt1, PointD pt2)
+    {
+      return new PointD((pt1.x + pt2.x) / 2, (pt1.y + pt2.y) / 2);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void InflateRect(ref Rect64 rec, int dx, int dy)
+    {
+      rec.left -= dx;
+      rec.right += dx;
+      rec.top -= dy;
+      rec.bottom += dy;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void InflateRect(ref RectD rec, double dx, double dy)
+    {
+      rec.left -= dx;
+      rec.right += dx;
+      rec.top -= dy;
+      rec.bottom += dy;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -990,7 +1032,7 @@ namespace Clipper2Lib
           curr = next;
           next = GetNext(next, high, ref flags);
         }
-        else 
+        else
           prior2 = GetPrior(prev, high, ref flags);
 
         flags[curr] = true;
@@ -1022,7 +1064,7 @@ namespace Clipper2Lib
       int i = 0;
       if (!isOpen)
       {
-        while (i < len - 1 && 
+        while (i < len - 1 &&
           InternalClipper.IsCollinear(path[len - 1], path[i], path[i + 1])) i++;
         while (i < len - 1 && InternalClipper.IsCollinear(path[len - 2], path[len - 1], path[i])) len--;
       }
@@ -1075,7 +1117,7 @@ namespace Clipper2Lib
       return InternalClipper.PointInPolygon(pt, polygon);
     }
 
-    public static PointInPolygonResult PointInPolygon(PointD pt, 
+    public static PointInPolygonResult PointInPolygon(PointD pt,
       PathD polygon, int precision = 2)
     {
       InternalClipper.CheckPrecision(precision);

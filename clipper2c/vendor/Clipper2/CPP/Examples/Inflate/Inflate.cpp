@@ -20,7 +20,7 @@ int main(int argc, char* argv[])
   //std::getchar();
 }
 
-void DoSimpleShapes() 
+void DoSimpleShapes()
 {
   Paths64 op1, op2;
   FillRule fr2 = FillRule::EvenOdd;
@@ -61,7 +61,7 @@ void DoSimpleShapes()
   for (int i = 0; i < 5; ++i)
   {
     //note the relatively large miter limit set here (10)
-    p = InflatePaths(p, 5, 
+    p = InflatePaths(p, 5,
       JoinType::Miter, EndType::Polygon, 10);
     pp.insert(pp.end(), p.begin(), p.end());
   }
@@ -70,7 +70,7 @@ void DoSimpleShapes()
   p.clear();
   p.push_back(MakePath({ 100,30, 340,30, 340,230, 100,230 }));
   pp.insert(pp.end(), p.begin(), p.end());
-  //nb: using the ClipperOffest class directly here to control 
+  //nb: using the ClipperOffest class directly here to control
   //different join types within the same offset operation
   ClipperOffset co;
   co.AddPaths(p, JoinType::Miter, EndType::Joined);
@@ -100,8 +100,8 @@ void DoRabbit()
   {
     // nb: don't forget to scale the delta offset too!
     p = InflatePaths(p, -2.5, jt, EndType::Polygon);
-    // SimplifyPaths (or RamerDouglasPeucker) is not 
-    // essential but is highly recommended because it 
+    // SimplifyPaths (or RamerDouglasPeucker) is not
+    // essential but is highly recommended because it
     // speeds up the loop and also tidies up the result
     p = SimplifyPaths(p, 0.25); // preferred over RDP()
     solution.reserve(solution.size() + p.size());

@@ -16,7 +16,7 @@ void TestingZ_Double();
 
 class MyClass {
 public:
-  
+
   // Point64 callback - see TestingZ_Int64()
   void myZCB(const Point64& e1bot, const Point64& e1top,
     const Point64& e2bot, const Point64& e2top, Point64& pt)
@@ -86,14 +86,14 @@ void TestingZ_Double()
 
   SvgWriter svg;
   SvgAddSubject(svg, subject, FillRule::NonZero);
-  if (solution.size() > 0) 
+  if (solution.size() > 0)
   {
     // draw circles around intersection points
     PathsD ellipses;
     double r = 3.0;
     for (const PointD& pt : solution[0])
       if (pt.z == 1)
-        ellipses.push_back(Ellipse(RectD(pt.x - r, pt.y - r, 
+        ellipses.push_back(Ellipse(RectD(pt.x - r, pt.y - r,
           pt.x + r, pt.y + r), 11));
 
     SvgAddSolution(svg, ellipses, FillRule::NonZero, false);

@@ -30,7 +30,7 @@ namespace ClipperDemo1
 
     public static Paths64 Polytree_Union(Paths64 subjects, FillRule fillrule)
     {
-      // of course this function is inefficient, 
+      // of course this function is inefficient,
       // but it's purpose is simply to test polytrees.
       PolyTree64 polytree = new PolyTree64();
       Clipper.BooleanOp(ClipType.Union, subjects, null, polytree, fillrule);
@@ -159,8 +159,8 @@ namespace ClipperDemo1
         int test_number = start;
       for (; test_number <= end; ++test_number)
       {
-        if (!ClipperFileIO.LoadTestNum(@"..\..\..\..\..\..\Tests\Polygons.txt", 
-          test_number, subject, subject_open, clip, 
+        if (!ClipperFileIO.LoadTestNum(@"..\..\..\..\..\..\Tests\Polygons.txt",
+          test_number, subject, subject_open, clip,
           out ct, out fr, out long area, out int cnt, out _)) break;
         Clipper64 c64 = new Clipper64();
         c64.AddSubject(subject);
@@ -184,7 +184,7 @@ namespace ClipperDemo1
             Console.WriteLine(string.Format("{0}: area {1} vs {2}", test_number, area, measuredArea));
 
           // don't display when looping through every test
-          continue; 
+          continue;
         }
 
         SvgWriter svg = new SvgWriter();

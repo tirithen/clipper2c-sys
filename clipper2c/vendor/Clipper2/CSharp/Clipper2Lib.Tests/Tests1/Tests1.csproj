@@ -27,5 +27,5 @@
     <ProjectReference Include="..\..\Clipper2Lib\Clipper2Lib.csproj" />
     <ProjectReference Include="..\..\Utils\ClipFileIO\Clipper.FileIO.csproj" />
   </ItemGroup>
-  
+
 </Project>

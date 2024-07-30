@@ -20,7 +20,7 @@ namespace ClipperDllDemo
     // double[] that represents a number of path contours.
 
     static T[]? CreateCPath<T>(T[] coords)
-    {      
+    {
       int pathLen = coords.Length / 2;
       if (pathLen == 0) return null;
       int arrayLen = pathLen * 2 + 2;
@@ -28,7 +28,7 @@ namespace ClipperDllDemo
       result[0] = (T)Convert.ChangeType(pathLen, typeof(T));
       result[1] = (T)Convert.ChangeType(0, typeof(T));
       coords.CopyTo(result, 2);
-      return result;  
+      return result;
     }
 
     static T[] CreateCPaths<T>(List<T[]> listOfCPath)
@@ -81,7 +81,7 @@ namespace ClipperDllDemo
       int vertexCnt = Convert.ToInt32(cpaths[idx]);
       idx += 2;
       for (int i = 0; i < vertexCnt; i++)
-        Console.Write(spaceIndent + 
+        Console.Write(spaceIndent +
           XyCoordsAsString<T>(cpaths[idx++], cpaths[idx++], 2));
       Console.Write("\n");
     }
@@ -95,15 +95,15 @@ namespace ClipperDllDemo
         DisplayCPath<T>(cpaths, ref idx, spaceIndent);
     }
 
-    // Note: The CPolyTree<T> structure defined in clipper.export.h is 
+    // Note: The CPolyTree<T> structure defined in clipper.export.h is
     // a simple array of T that contains any number of nested path contours.
 
-    public static void DisplayPolyPath<T>(T[] polypath, 
+    public static void DisplayPolyPath<T>(T[] polypath,
       ref int idx, bool isHole, string spaceIndent, int precision)
     {
       int polyCnt = Convert.ToInt32(polypath[idx++]);
       int childCnt = Convert.ToInt32(polypath[idx++]);
-      string preamble = isHole ? "Hole: " : (spaceIndent == "") ? 
+      string preamble = isHole ? "Hole: " : (spaceIndent == "") ?
         "Polygon: " : "Nested Polygon: ";
       Console.Write(spaceIndent + preamble);
       spaceIndent += "  ";
@@ -118,7 +118,7 @@ namespace ClipperDllDemo
     {
       int cnt = Convert.ToInt32(polytree[1]);
       int idx = 2;
-      for (int i = 0; i < cnt; i++) 
+      for (int i = 0; i < cnt; i++)
         DisplayPolyPath<T>(polytree, ref idx, false, "  ", precision);
     }
 
@@ -143,22 +143,22 @@ namespace ClipperDllDemo
       }
       else return null;
     }
-  
+
     // DLL exported function definitions /////////////////////
 
     const string clipperDll = @"..\..\..\..\Clipper2_64.dll";
 
-    [DllImport(clipperDll, EntryPoint = 
+    [DllImport(clipperDll, EntryPoint =
       "Version", CallingConvention = CallingConvention.Cdecl)]
     static extern IntPtr Version();
 
-    [DllImport(clipperDll, EntryPoint = 
+    [DllImport(clipperDll, EntryPoint =
       "BooleanOp64", CallingConvention = CallingConvention.Cdecl)]
     static extern Int32 BooleanOp64(byte clipType, byte fillRule,
       long[] subjects, long[]? openSubs, long[]? clips,
       out IntPtr solution, out IntPtr openSol, bool preserveCollinear, bool reverseSolution);
 
-    [DllImport(clipperDll, EntryPoint = 
+    [DllImport(clipperDll, EntryPoint =
       "BooleanOpD", CallingConvention = CallingConvention.Cdecl)]
     static extern Int32 BooleanOpD(byte clipType, byte fillRule,
       double[] subjects, double[]? openSubs, double[]? clips,
@@ -173,20 +173,20 @@ namespace ClipperDllDemo
       "DisposeArrayD", CallingConvention = CallingConvention.Cdecl)]
     static extern void DisposeArrayD(ref IntPtr intptr);
 
-    [DllImport(clipperDll, EntryPoint = 
+    [DllImport(clipperDll, EntryPoint =
       "BooleanOp_PolyTree64", CallingConvention = CallingConvention.Cdecl)]
     static extern Int32 BooleanOp_PolyTree64(byte cliptype,
       byte fillrule, long[] subjects, long[]? openSubs, long[]? clips,
       out IntPtr solTree, out IntPtr openSol,
       bool preserve_collinear, bool reverse_solution);
 
-    [DllImport(clipperDll, EntryPoint = 
+    [DllImport(clipperDll, EntryPoint =
       "BooleanOp_PolyTreeD", CallingConvention = CallingConvention.Cdecl)]
     static extern Int32 BooleanOp_PolyTreeD(byte cliptype,
       byte fillrule, double[] subjects, double[]? openSubs, double[]? clips,
       out IntPtr solTree, out IntPtr openSol, Int32 precision,
       bool preserve_collinear, bool reverse_solution);
-    
+
 
     public static readonly byte None = 0, Intersection = 1, Union = 2, Difference = 3, Xor = 4;
     public static readonly byte EvenOdd = 0, NonZero = 1, Positive = 2, Negative = 3;
@@ -203,7 +203,7 @@ namespace ClipperDllDemo
       Console.WriteLine("BooleanOp64:");
       long[] cSubject = CreateCPaths(new long[] { 0, 0, 100, 0, 100, 100, 0, 100 });
       long[] cClip = CreateCPaths(new long[] { 20, 20, 120, 20, 120, 120, 20, 120 });
-      
+
       if (BooleanOp64(Intersection, NonZero, cSubject,
         null, cClip, out IntPtr cSol, out IntPtr cSolOpen, false, false) != 0) return;
 
@@ -237,7 +237,7 @@ namespace ClipperDllDemo
 
       List<long[]> subList = new(5);
       for (int i = 1; i < 6; ++i)
-        subList.Add(CreateCPath(new long[] { 
+        subList.Add(CreateCPath(new long[] {
           -i * 20, -i * 20, i * 20, -i * 20, i * 20, i * 20, -i * 20, i * 20 })!);
 
       long[] cSubject3 = CreateCPaths(subList);
@@ -262,7 +262,7 @@ namespace ClipperDllDemo
 
       List<double[]> subList2 = new(5);
       for (int i = 1; i < 6; ++i)
-        subList2.Add(CreateCPath(new double[] { 
+        subList2.Add(CreateCPath(new double[] {
           -i * 20, -i * 20, i * 20, -i * 20, i * 20, i * 20, -i * 20, i * 20 })!);
 
       double[] cSubject4 = CreateCPaths(subList2);

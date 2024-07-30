@@ -83,7 +83,7 @@ void test3() {
 
   co.SetDeltaCallback([radius](const Path64& path,
     const PathD& path_norms, size_t curr_idx, size_t prev_idx) {
-      // when multiplying the x & y of edge unit normal vectors, the value will be 
+      // when multiplying the x & y of edge unit normal vectors, the value will be
       // largest (0.5) when edges are at 45 deg. and least (-0.5) at negative 45 deg.
       double delta = path_norms[curr_idx].y * path_norms[curr_idx].x;
       return radius * 0.5 + radius * delta;

@@ -5,13 +5,13 @@
 
 using namespace Clipper2Lib;
 
-// globals 
+// globals
 Paths64 test_paths;
 
 // Previous (slow) StripDuplicates function - copies path
 template <typename T>
-inline Path<T> StripDuplicates1(const Path<T> &path, bool is_closed_path) 
-{  
+inline Path<T> StripDuplicates1(const Path<T> &path, bool is_closed_path)
+{
   if (path.size() == 0) return Path<T>();
   Path<T> result;
   result.reserve(path.size());
@@ -42,24 +42,24 @@ inline void StripDuplicates2(Path<T>& path, bool is_closed_path)
 
 static void StripDuplicates_OLD(benchmark::State &state)
 {
-  for (auto _ : state) 
+  for (auto _ : state)
   {
     for (Path64& p: test_paths)
       p = StripDuplicates1(p, true);
   }
 }
 
-static void StripDuplicates_NEW(benchmark::State &state) 
+static void StripDuplicates_NEW(benchmark::State &state)
 {
   for (auto _ : state) {
     for (Path64& p : test_paths)
-      StripDuplicates2(p, true); 
+      StripDuplicates2(p, true);
   }
 }
 
 
 int main(int argc, char** argv)
-{  
+{
   const size_t max_paths = 5;
   const int width = 6000, height = 4000, count = 10000;
   test_paths.reserve(max_paths);
