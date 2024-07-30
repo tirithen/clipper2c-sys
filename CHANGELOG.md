@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.4](https://github.com/tirithen/clipper2c-sys/compare/v0.1.3...v0.1.4) (2024-07-30)
+
+
+### Features
+
+* update Clipper2 dep library to 1.4.0 + fixes ([87502f6](https://github.com/tirithen/clipper2c-sys/commit/87502f6628d37f1423bf8ae182bde5e74e8b27ed))
+
 ### [0.1.3](https://github.com/tirithen/clipper2c-sys/compare/v0.1.2...v0.1.3) (2024-07-01)
 
 
