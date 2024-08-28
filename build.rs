@@ -1,12 +1,36 @@
 use std::env;
 
+struct BuildOptions {
+    usingz: bool,
+    #[allow(unused)]
+    generated_bindings_name: String,
+}
+
 fn main() {
+    build(BuildOptions {
+        generated_bindings_name: "bindings".to_string(),
+        usingz: false,
+    });
+    build(BuildOptions {
+        generated_bindings_name: "bindings_usingz".to_string(),
+        usingz: true,
+    });
+}
+
+fn build(options: BuildOptions) {
     println!("cargo:rerun-if-changed=clipper2c");
     if cfg!(feature = "update-bindings") {
         println!("cargo:rerun-if-changed=generated");
     }
 
-    cc::Build::new()
+    #[allow(unused_mut)]
+    let mut build = &mut cc::Build::new();
+
+    if options.usingz {
+        build = build.define("USINGZ", None);
+    }
+
+    build
         .cpp(true)
         .opt_level(3)
         .include("clipper2c/vendor/Clipper2/CPP/Clipper2Lib/include/")
@@ -49,7 +73,13 @@ fn main() {
 
     #[cfg(feature = "generate-bindings")]
     {
-        let builder = bindgen::Builder::default()
+        let mut builder = bindgen::Builder::default();
+
+        if options.usingz {
+            builder = builder.clang_arg("-DUSINGZ");
+        }
+
+        builder = builder
             .header("clipper2c/include/clipper2c.h")
             .header("clipper2c/include/types.h")
             .derive_default(true)
@@ -111,6 +141,7 @@ fn main() {
             .allowlist_function("clipper_clipperd_set_reverse_solution")
             .allowlist_function("clipper_clipperd_get_reverse_solution")
             .allowlist_function("clipper_clipperd_clear")
+            .allowlist_function("clipper_clipperd_set_z_callback")
             .allowlist_function("clipper_delete_clipperd")
             // PolyTreeD Methods
             .allowlist_function("clipper_polytreed_size")
@@ -153,7 +184,7 @@ fn main() {
             .allowlist_function("clipper_paths64_inflate")
             .allowlist_function("clipper_paths64_to_pathsd")
             .allowlist_function("clipper_paths64_area")
-            // ClipperD Methods
+            // Clipper64 Methods
             .allowlist_function("clipper_clipper64_size")
             .allowlist_function("clipper_clipper64")
             .allowlist_function("clipper_clipper64_add_subject")
@@ -166,6 +197,7 @@ fn main() {
             .allowlist_function("clipper_clipper64_set_reverse_solution")
             .allowlist_function("clipper_clipper64_get_reverse_solution")
             .allowlist_function("clipper_clipper64_clear")
+            .allowlist_function("clipper_clipper64_set_z_callback")
             .allowlist_function("clipper_delete_clipper64")
             // PolyTreeD Methods
             .allowlist_function("clipper_polytree64_size")
@@ -207,7 +239,7 @@ fn main() {
         } else {
             std::path::PathBuf::from(env::var("OUT_DIR").unwrap())
         };
-        let out_bindings = out_path.join("bindings.rs");
+        let out_bindings = out_path.join(options.generated_bindings_name + ".rs");
 
         bindings
             .write_to_file(&out_bindings)

@@ -364,6 +364,10 @@ int clipper_clipper64_get_preserve_collinear(ClipperClipper64 *c);
 int clipper_clipper64_get_reverse_solution(ClipperClipper64 *c);
 void clipper_clipper64_clear(ClipperClipper64 *c);
 
+#ifdef USINGZ
+void clipper_clipper64_set_z_callback(ClipperClipper64 *c, void* user_data, ClipperZCallback64 cb);
+#endif
+
 // ClipperD Setters / Getters
 //
 void clipper_clipperd_set_preserve_collinear(ClipperClipperD *c, int t);
@@ -371,6 +375,10 @@ void clipper_clipperd_set_reverse_solution(ClipperClipperD *c, int t);
 int clipper_clipperd_get_preserve_collinear(ClipperClipperD *c);
 int clipper_clipperd_get_reverse_solution(ClipperClipperD *c);
 void clipper_clipperd_clear(ClipperClipperD *c);
+
+#ifdef USINGZ
+void clipper_clipperd_set_z_callback(ClipperClipperD *c, void* user_data, ClipperZCallbackD cb);
+#endif
 
 // Clipper64 Methods
 

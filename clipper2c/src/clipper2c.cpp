@@ -403,7 +403,13 @@ extern "C"
     ClipperPoint64 *pts = reinterpret_cast<ClipperPoint64 *>(mem);
     for (size_t i = 0; i < len; ++i)
     {
-      pts[i] = {p[i].x, p[i].y};
+      pts[i] = {
+          p[i].x,
+          p[i].y,
+#ifdef USINGZ
+          p[i].z
+#endif
+      };
     }
     return pts;
   }
@@ -415,7 +421,13 @@ extern "C"
     ClipperPointD *pts = reinterpret_cast<ClipperPointD *>(mem);
     for (size_t i = 0; i < len; ++i)
     {
-      pts[i] = {p[i].x, p[i].y};
+      pts[i] = {
+        p[i].x,
+        p[i].y,
+#ifdef USINGZ
+        p[i].z
+#endif
+      };
     }
     return pts;
   }
@@ -500,7 +512,13 @@ extern "C"
       auto len = ps[i].size();
       for (size_t j = 0; j < len; ++j)
       {
-        pts[i][j] = {ps[i][j].x, ps[i][j].y};
+        pts[i][j] = {
+          ps[i][j].x,
+          ps[i][j].y,
+#ifdef USINGZ
+          ps[i][j].z
+#endif
+        };
       }
     }
     return pts;
@@ -516,7 +534,13 @@ extern "C"
       auto len = ps[i].size();
       for (size_t j = 0; j < len; ++j)
       {
-        pts[i][j] = {ps[i][j].x, ps[i][j].y};
+        pts[i][j] = {
+          ps[i][j].x,
+          ps[i][j].y,
+#ifdef USINGZ
+          ps[i][j].z
+#endif
+        };
       }
     }
     return pts;

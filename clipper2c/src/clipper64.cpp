@@ -37,6 +37,21 @@ int clipper_clipper64_get_reverse_solution(ClipperClipper64 *c) {
 
 void clipper_clipper64_clear(ClipperClipper64 *c) { from_c(c)->Clear(); }
 
+#ifdef USINGZ
+void clipper_clipper64_set_z_callback(ClipperClipper64 *c, void* user_data, ClipperZCallback64 cb) {
+  from_c(c)->SetZCallback([cb, user_data](const Point64 &p1, const Point64 &p2,
+                               const Point64 &p3, const Point64 &p4,
+                               Point64 &p5) {
+    cb(user_data,
+       reinterpret_cast<const ClipperPoint64 *>(&p1),
+       reinterpret_cast<const ClipperPoint64 *>(&p2),
+       reinterpret_cast<const ClipperPoint64 *>(&p3),
+       reinterpret_cast<const ClipperPoint64 *>(&p4),
+       reinterpret_cast<ClipperPoint64 *>(&p5));
+  });
+}
+#endif
+
 // Methods
 
 void clipper_clipper64_add_subject(ClipperClipper64 *c,

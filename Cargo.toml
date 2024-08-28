@@ -15,6 +15,7 @@ categories = ["algorithms", "external-ffi-bindings"]
 generate-bindings = ["bindgen"]
 update-bindings = ["generate-bindings"]
 serde = ["dep:serde"]
+usingz = []
 
 [dependencies]
 libc = "0.2"
