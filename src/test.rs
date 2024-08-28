@@ -14,16 +14,44 @@ unsafe fn malloc(size: usize) -> *mut std::os::raw::c_void {
 #[test]
 fn test_difference_boolean_operation() {
     let mut triangle = vec![
-        ClipperPoint64 { x: 0, y: 0 },
-        ClipperPoint64 { x: 10, y: 0 },
-        ClipperPoint64 { x: 5, y: 10 },
+        ClipperPoint64 {
+            x: 0,
+            y: 0,
+            ..Default::default()
+        },
+        ClipperPoint64 {
+            x: 10,
+            y: 0,
+            ..Default::default()
+        },
+        ClipperPoint64 {
+            x: 5,
+            y: 10,
+            ..Default::default()
+        },
     ];
 
     let mut square = vec![
-        ClipperPoint64 { x: 0, y: 0 },
-        ClipperPoint64 { x: 4, y: 0 },
-        ClipperPoint64 { x: 4, y: 4 },
-        ClipperPoint64 { x: 0, y: 4 },
+        ClipperPoint64 {
+            x: 0,
+            y: 0,
+            ..Default::default()
+        },
+        ClipperPoint64 {
+            x: 4,
+            y: 0,
+            ..Default::default()
+        },
+        ClipperPoint64 {
+            x: 4,
+            y: 4,
+            ..Default::default()
+        },
+        ClipperPoint64 {
+            x: 0,
+            y: 4,
+            ..Default::default()
+        },
     ];
 
     for _ in 0..1_000 {
@@ -44,6 +72,27 @@ fn test_difference_boolean_operation() {
 
             let clipper_mem = malloc(clipper_clipper64_size());
             let clipper_ptr = clipper_clipper64(clipper_mem);
+
+            #[cfg(feature = "usingz")]
+            {
+                extern "C" fn cb(
+                    _ud: *mut std::ffi::c_void,
+                    _e1bot: *const ClipperPoint64,
+                    _e1top: *const ClipperPoint64,
+                    _e2bot: *const ClipperPoint64,
+                    _e2top: *const ClipperPoint64,
+                    pt: *mut ClipperPoint64,
+                ) {
+                    unsafe {
+                        (*pt).z = 1;
+                    }
+                }
+                crate::clipper_clipper64_set_z_callback(
+                    clipper_ptr,
+                    std::ptr::null_mut(),
+                    Some(cb),
+                );
+            }
 
             clipper_clipper64_add_subject(clipper_ptr, subjects_ptr);
             clipper_clipper64_add_clip(clipper_ptr, clips_ptr);
@@ -76,6 +125,15 @@ fn test_difference_boolean_operation() {
                     let point_len: i32 = clipper_paths64_path_length(closed_path_ptr, i)
                         .try_into()
                         .unwrap();
+
+                    #[cfg(feature = "usingz")]
+                    {
+                        assert!((0..point_len)
+                            .map(|j| clipper_paths64_get_point(closed_path_ptr, i, j))
+                            .map(|p| p.z)
+                            .any(|z| z == 1));
+                    }
+
                     (0..point_len)
                         .map(|j| clipper_paths64_get_point(closed_path_ptr, i, j))
                         .map(|p| (p.x, p.y))

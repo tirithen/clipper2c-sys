@@ -2,9 +2,25 @@
 #include "clipper2/clipper.core.h"
 #include "types.h"
 
-ClipperPoint64 to_c(Clipper2Lib::Point64 p) { return {p.x, p.y}; }
+ClipperPoint64 to_c(Clipper2Lib::Point64 p) {
+  return {
+    p.x,
+    p.y,
+#ifdef USINGZ
+    p.z
+#endif
+  };
+}
 
-ClipperPointD to_c(Clipper2Lib::PointD p) { return {p.x, p.y}; }
+ClipperPointD to_c(Clipper2Lib::PointD p) {
+  return {
+    p.x,
+    p.y,
+#ifdef USINGZ
+    p.z
+#endif
+  };
+}
 
 ClipperPath64 *to_c(Clipper2Lib::Path64 *p)
 {
