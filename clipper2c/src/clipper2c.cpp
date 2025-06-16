@@ -1003,7 +1003,7 @@ extern "C"
   }
 
   // pointer free + destruction
-
+  void* clipper_allocate(size_t size) { return ::operator new(size); }
   void clipper_delete_path64(ClipperPath64 *p) { delete from_c(p); }
   void clipper_delete_pathd(ClipperPathD *p) { delete from_c(p); }
   void clipper_delete_paths64(ClipperPaths64 *p) { delete from_c(p); }

@@ -510,6 +510,7 @@ void clipper_destruct_svgwriter(ClipperSvgWriter *p);
 void clipper_destruct_svgreader(ClipperSvgReader *p);
 
 // pointer free + destruction
+void* clipper_allocate(size_t size);
 
 void clipper_delete_path64(ClipperPath64 *p);
 void clipper_delete_pathd(ClipperPathD *p);

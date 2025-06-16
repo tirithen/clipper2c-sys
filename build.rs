@@ -198,6 +198,8 @@ fn main() {
             .allowlist_function("clipper_clipperoffset_add_paths64")
             .allowlist_function("clipper_clipperoffset_execute")
             .allowlist_function("clipper_delete_clipperoffset")
+            // Memory allocation
+            .allowlist_function("clipper_allocate")
             .size_t_is_usize(true);
 
         let bindings = builder.generate().expect("unable to generate bindings");
