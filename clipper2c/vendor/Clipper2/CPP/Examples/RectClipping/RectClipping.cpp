@@ -29,11 +29,11 @@ const int width = 800, height = 600, margin = 120;
 int main(int argc, char* argv[])
 {
   srand((unsigned)time(0));
-
-  DoEllipses(500);
-  DoRectangles(500);
-  //DoRandomPoly(21);
-  //MeasurePerformance(1000, 5000, 1000);
+  
+  DoEllipses(500);      
+  DoRectangles(500);    
+  //DoRandomPoly(21);     
+  //MeasurePerformance(1000, 5000, 1000);  
   PressEnterToExit();
 }
 
@@ -55,7 +55,7 @@ void DoEllipses(int cnt)
   clp.push_back(rect.AsPath());
   for (int i = 0; i < cnt; ++i)
     sub.push_back(MakeRandomEllipse(10, 10, 100, 100, width, height));
-
+      
   //////////////////////////////////
   sol = RectClip(rect, sub);
   //////////////////////////////////
@@ -210,3 +210,6 @@ void PressEnterToExit()
   std::cout << std::endl << "Press Enter to exit" << std::endl;
   std::getline(std::cin, s);
 }
+
+
+

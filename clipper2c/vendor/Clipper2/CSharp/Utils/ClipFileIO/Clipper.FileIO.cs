@@ -1,9 +1,9 @@
 ﻿/*******************************************************************************
 * Author    :  Angus Johnson                                                   *
 * Date      :  16 September 2022                                               *
-* Website   :  http://www.angusj.com                                           *
+* Website   :  https://www.angusj.com                                          *
 * Copyright :  Angus Johnson 2010-2022                                         *
-* License   :  http://www.boost.org/LICENSE_1_0.txt                            *
+* License   :  https://www.boost.org/LICENSE_1_0.txt                           *
 *******************************************************************************/
 
 using System;
@@ -20,17 +20,16 @@ namespace Clipper2Lib
       if (s == null) return new Paths64();
       Path64 p = new Path64();
       Paths64 pp = new Paths64();
-      int len = s.Length, i = 0, j;
+      int len = s.Length, i = 0;
       while (i < len)
       {
-        bool isNeg;
         while (s[i] < 33 && i < len) i++;
         if (i >= len) break;
         //get X ...
-        isNeg = s[i] == 45;
+        bool isNeg = s[i] == 45;
         if (isNeg) i++;
         if (i >= len || s[i] < 48 || s[i] > 57) break;
-        j = i + 1;
+        int j = i + 1;
         while (j < len && s[j] > 47 && s[j] < 58) j++;
         if (!long.TryParse(s.Substring(i, j - i), out long x)) break;
         if (isNeg) x = -x;
@@ -80,7 +79,6 @@ namespace Clipper2Lib
       ct = ClipType.Intersection;
       fillRule = FillRule.EvenOdd;
       bool result = false;
-      int GetIdx;
       if (num < 1) num = 1;
       caption = "";
       area = 0;
@@ -98,7 +96,7 @@ namespace Clipper2Lib
       {
         string? s = reader.ReadLine();
         if (s == null) break;
-
+        
         if (s.IndexOf("CAPTION: ", StringComparison.Ordinal) == 0)
         {
           num--;
@@ -141,6 +139,7 @@ namespace Clipper2Lib
           continue;
         }
 
+        int GetIdx;
         if (s.IndexOf("SUBJECTS_OPEN", StringComparison.Ordinal) == 0) GetIdx = 2;
         else if (s.IndexOf("SUBJECTS", StringComparison.Ordinal) == 0) GetIdx = 1;
         else if (s.IndexOf("CLIPS", StringComparison.Ordinal) == 0) GetIdx = 3;
@@ -159,9 +158,18 @@ namespace Clipper2Lib
             else return result;
             continue;
           }
-          if (GetIdx == 1) subj.Add(paths[0]);
-          else if (GetIdx == 2) subj_open.Add(paths[0]);
-          else clip.Add(paths[0]);
+          switch (GetIdx)
+          {
+            case 1:
+              subj.Add(paths[0]);
+              break;
+            case 2:
+              subj_open.Add(paths[0]);
+              break;
+            default:
+              clip.Add(paths[0]);
+              break;
+          }
         }
       }
       return result;

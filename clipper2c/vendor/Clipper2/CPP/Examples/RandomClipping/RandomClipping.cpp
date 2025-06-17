@@ -1,6 +1,6 @@
 #include <cstdlib>
 #include <string>
-#include <chrono>
+#include <chrono> 
 #include <random>
 
 #include "clipper2/clipper.h"
@@ -17,7 +17,7 @@ void DoRandomTest();
 void System(const std::string &filename);
 
 int main()
-{
+{  
   srand((unsigned)time(0));
   DoRandomTest();
   return 0;
@@ -34,7 +34,7 @@ Paths64 GenerateRandomPaths(std::default_random_engine& rng,  int path_count, in
 {
   if (!path_count) return Paths64();
   // with fewer paths, keep them closer to the center of the display ...
-  double center_x = display_width / 2.0;
+  double center_x = display_width / 2.0; 
   double center_y = display_height / 2.0;
   double dx = center_x / 3.0 * (static_cast<double>(path_count) / max_paths);
   double dy = center_y / 3.0 * (static_cast<double>(path_count) / max_paths);
@@ -93,7 +93,7 @@ void RandomTest(int path_count)
 {
   unsigned seed = (unsigned)std::chrono::system_clock::now().time_since_epoch().count();
   std::default_random_engine rng(seed);
-
+  
   ClipType cliptype =
     static_cast<Clipper2Lib::ClipType>(GenerateRandomNumber(rng, 0, 3) + 1);
   FillRule fillrule =
@@ -103,12 +103,12 @@ void RandomTest(int path_count)
   path_count = std::min(max_paths, path_count);
 
   Paths64 subj, subj_open, clip, sol, sol_open;
-  // generate exactly path_count subjects, between 0 & path_count open subjects,
-  // and between 1 & path_count clips
+  // generate exactly path_count subjects, between 0 & path_count open subjects, 
+  // and between 1 & path_count clips 
   subj = GenerateRandomPaths(rng, path_count, GenerateRandomNumber(rng, 3, max_edges));
-  subj_open = GenerateRandomPaths(rng,
+  subj_open = GenerateRandomPaths(rng, 
     GenerateRandomNumber(rng, 0, path_count), GenerateRandomNumber(rng, 3, max_edges));
-  clip = GenerateRandomPaths(rng,
+  clip = GenerateRandomPaths(rng, 
     GenerateRandomNumber(rng, 1, path_count), GenerateRandomNumber(rng, 3, max_edges));
 
   //SaveTest("random.txt", false, &subj, &subj_open, &clip, 0, 0, cliptype, fillrule);
@@ -130,7 +130,7 @@ void RandomTest(int path_count)
   //  for (auto& path : sol) std::reverse(path.begin(), path.end());
   SvgAddSolution(svg, sol, fillrule, false);
   SvgAddOpenSolution(svg, sol_open, fillrule, false);
-  SvgAddCaption(svg,
+  SvgAddCaption(svg, 
     ClipTypeToString(cliptype) + ", " + FillRuleToString(fillrule), 20, 20);
   std::string filename = "random_" + std::to_string(path_count) + ".svg";
   SvgSaveToFile(svg, filename, 800, 600, 10);

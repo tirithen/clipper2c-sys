@@ -76,7 +76,7 @@ ClipperClipType to_c(Clipper2Lib::ClipType cliptype)
   ClipperClipType ct = NONE;
   switch (cliptype)
   {
-  case Clipper2Lib::ClipType::None:
+  case Clipper2Lib::ClipType::NoClip:
     break;
   case Clipper2Lib::ClipType::Intersection:
     ct = INTERSECTION;
@@ -251,7 +251,7 @@ Clipper2Lib::SvgReader *from_c(ClipperSvgReader *p)
 
 Clipper2Lib::ClipType from_c(ClipperClipType fr)
 {
-  Clipper2Lib::ClipType clipType = Clipper2Lib::ClipType::None;
+  Clipper2Lib::ClipType clipType = Clipper2Lib::ClipType::NoClip;
   switch (fr)
   {
   case NONE:

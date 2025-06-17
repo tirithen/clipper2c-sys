@@ -2,11 +2,11 @@ unit Clipper;
 
 (*******************************************************************************
 * Author    :  Angus Johnson                                                   *
-* Date      :  7 May 2024                                                      *
-* Website   :  http://www.angusj.com                                           *
-* Copyright :  Angus Johnson 2010-2024                                         *
+* Date      :  5 March 2025                                                    *
+* Website   :  https://www.angusj.com                                          *
+* Copyright :  Angus Johnson 2010-2025                                         *
 * Purpose   :  This module provides a simple interface to the Clipper Library  *
-* License   :  http://www.boost.org/LICENSE_1_0.txt                            *
+* License   :  https://www.boost.org/LICENSE_1_0.txt                           *
 *******************************************************************************)
 
 interface
@@ -52,7 +52,7 @@ const
   etSquare    = Clipper.Offset.etSquare;
   etRound     = Clipper.Offset.etRound;
 
-  ctNone          = Clipper.Core.ctNone;
+  ctNone          = Clipper.Core.ctNoClip;
   ctIntersection  = Clipper.Core.ctIntersection;
   ctUnion         = Clipper.Core.ctUnion;
   ctDifference    = Clipper.Core.ctDifference;
@@ -144,8 +144,9 @@ function TrimCollinear(const p: TPath64;
 function TrimCollinear(const path: TPathD;
   precision: integer; isOpenPath: Boolean = false): TPathD; overload;
 
-function PointInPolygon(const pt: TPoint64; const polygon: TPath64):
-  TPointInPolygonResult;
+function PointInPolygon(const pt: TPoint64;
+  const polygon: TPath64): TPointInPolygonResult;
+function Path2ContainsPath1(const path1, path2: TPath64): Boolean; overload;
 
 function SimplifyPath(const path: TPath64;
   shapeTolerance: double; isClosedPath: Boolean = true): TPath64; overload;
@@ -408,7 +409,7 @@ begin
   invScale := 1/scale;
   pp := ScalePaths(paths, scale, scale);
 
-  with TClipperOffset.Create(miterLimit, ArcTolerance) do
+  with TClipperOffset.Create(miterLimit, scale * ArcTolerance) do
   try
     AddPaths(pp, jt, et);
     Execute(delta * scale, pp); // reuse pp to receive the solution.
@@ -683,7 +684,7 @@ begin
 end;
 //------------------------------------------------------------------------------
 
-procedure ShowPolyPathStructure64(pp: TPolyPath64; level: integer;
+procedure ShowPolyPathStructure64(pp: TPolyPath64; ppIdx, level: integer;
   strings: TStrings);
 var
   i: integer;
@@ -692,12 +693,14 @@ begin
   spaces := StringOfChar(' ', level * 2);
   if pp.Count = 1 then plural := '' else plural := 's';
   if pp.IsHole then
-    strings.Add(Format('%sA hole containing %d polygon%s', [spaces, pp.Count, plural]))
+    strings.Add(Format('%sHole (%d) containing %d polygon%s',
+      [spaces, ppIdx, pp.Count, plural]))
   else
-    strings.Add(Format('%sA polygon containing %d hole%s', [spaces, pp.Count, plural]));
+    strings.Add(Format('%sPolygon (%d) containing %d hole%s',
+      [spaces, ppIdx, pp.Count, plural]));
   for i := 0 to pp.Count -1 do
     if pp.child[i].Count> 0 then
-      ShowPolyPathStructure64(pp.child[i], level + 1, strings);
+      ShowPolyPathStructure64(pp.child[i], i, level + 1, strings);
 end;
 //------------------------------------------------------------------------------
 
@@ -710,7 +713,7 @@ begin
     strings.Add(Format('Polytree with just %d polygons.', [polytree.Count]));
   for i := 0 to polytree.Count -1 do
     if polytree[i].Count > 0 then
-      ShowPolyPathStructure64(polytree[i], 1, strings);
+      ShowPolyPathStructure64(polytree[i], i, 1, strings);
 end;
 //------------------------------------------------------------------------------
 
@@ -816,12 +819,18 @@ begin
 end;
 //------------------------------------------------------------------------------
 
+function Path2ContainsPath1(const path1, path2: TPath64): Boolean;
+begin
+  Result := Clipper.Core.Path2ContainsPath1(path1, path2);
+end;
+//------------------------------------------------------------------------------
+
 function DistanceSqrd(const pt1, pt2: TPoint64): double;
   {$IFDEF INLINE} inline; {$ENDIF}
 var
   x1,y1,x2,y2: double;
 begin
-  // nb: older versions of Delphi don't allow explicit typcasting
+  // nb: older versions of Delphi don't allow explicit typecasting
   x1 := pt1.X; y1 := pt1.Y;
   x2 := pt2.X; y2 := pt2.Y;
   result := Sqr(x1 - x2) + Sqr(y1 - y2);
@@ -968,3 +977,5 @@ end;
 
 
 end.
+
+
