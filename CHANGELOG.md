@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.5](https://github.com/tirithen/clipper2c-sys/compare/v0.1.4...v0.1.5) (2025-06-17)
+
+
+### Features
+
+* use clipper c++ lib version 1.5.4 ([495ccd2](https://github.com/tirithen/clipper2c-sys/commit/495ccd2f74e9af7adb2b033eefd5d8d8d527169f))
+
+
+### Bug Fixes
+
+* use c++ memory allocator to match delete calls ([fb47275](https://github.com/tirithen/clipper2c-sys/commit/fb4727519179c0db2b08dc3a421b9c2b0447f811))
+
 ### [0.1.4](https://github.com/tirithen/clipper2c-sys/compare/v0.1.3...v0.1.4) (2024-07-30)
 
 
