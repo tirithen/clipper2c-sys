@@ -1,9 +1,9 @@
 ﻿/*******************************************************************************
 * Author    :  Angus Johnson                                                   *
 * Date      :  24 March 2024                                                   *
-* Website   :  http://www.angusj.com                                           *
+* Website   :  https://www.angusj.com                                          *
 * Copyright :  Angus Johnson 2010-2024                                         *
-* License   :  http://www.boost.org/LICENSE_1_0.txt                            *
+* License   :  https://www.boost.org/LICENSE_1_0.txt                           *
 *******************************************************************************/
 
 using System.Collections.Generic;
@@ -66,7 +66,7 @@ namespace UsingZTestApp
         if (solution[0][i].z < 0)
           ellipses.Add(Clipper.Ellipse(
             new PointD(solution[0][i].x, solution[0][i].y), 4));
-        svg.AddText(solution[0][i].z.ToString(),
+        svg.AddText(solution[0][i].z.ToString(), 
           solution[0][i].x, solution[0][i].y, 12, 0xFF000000);
       }
       svg.AddClosedPaths(ellipses, 0x20FF0000, 0xFFFF0000, 1);

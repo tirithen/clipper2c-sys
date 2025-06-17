@@ -12,7 +12,7 @@ TEST(Clipper2Tests, TestOffsets) {
     ClipperOffset co;
     Paths64 subject, subject_open, clip;
     Paths64 solution, solution_open;
-    ClipType ct = ClipType::None;
+    ClipType ct = ClipType::NoClip;
     FillRule fr = FillRule::NonZero;
     int64_t stored_area = 0, stored_count = 0;
     ASSERT_TRUE(LoadTestNum(ifs, test_number, subject, subject_open, clip, stored_area, stored_count, ct, fr));
@@ -669,9 +669,32 @@ TEST(Clipper2Tests, TestOffsets11) // see #405
 
 TEST(Clipper2Tests, TestOffsets12) // see #873
 {
-  Paths64 subject = {
-    MakePath({667680768, -36382704, 737202688, -87034880, 742581888, -86055680, 747603968, -84684800})
+  Paths64 subject = { 
+    MakePath({667680768, -36382704, 737202688, -87034880, 742581888, -86055680, 747603968, -84684800}) 
   };
   Paths64 solution = InflatePaths(subject, -249561088, JoinType::Miter, EndType::Polygon);
   EXPECT_TRUE(solution.empty());
+}
+
+TEST(Clipper2Tests, TestOffsets13) // see #965
+{
+  const Path64 subject1 = {{0, 0}, {0, 10}, {10, 0}};
+  const auto delta = 2;
+  const auto joinType = JoinType::Miter;
+  const auto endType = EndType::Polygon;
+
+  const Paths64 subjects1 = {
+    subject1
+  };
+  const Paths64 solution1 = InflatePaths(subjects1, delta, joinType, endType);
+  const auto area1 = std::abs(Area(solution1));
+  EXPECT_EQ(area1, 122);
+
+  const Paths64 subjects2 = {
+   subject1,
+   {{0, 20}} // adding this single-point path should not really change the solution
+  };
+  const Paths64 solution2 = InflatePaths(subjects2, delta, joinType, endType);
+  const auto area2 = std::abs(Area(solution2));
+  EXPECT_EQ(area2, 122);
 }

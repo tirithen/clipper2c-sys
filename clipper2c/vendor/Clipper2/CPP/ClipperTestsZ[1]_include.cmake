@@ -1,5 +1,0 @@
-if(EXISTS "/home/tirithen/Programmering/Clipper2/CPP/ClipperTestsZ[1]_tests.cmake")
-  include("/home/tirithen/Programmering/Clipper2/CPP/ClipperTestsZ[1]_tests.cmake")
-else()
-  add_test(ClipperTestsZ_NOT_BUILT ClipperTestsZ_NOT_BUILT)
-endif()

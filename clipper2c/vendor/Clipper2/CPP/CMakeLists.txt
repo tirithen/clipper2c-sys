@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.15)
-project(Clipper2 VERSION 1.4.0 LANGUAGES C CXX)
+project(Clipper2 VERSION 1.5.4 LANGUAGES C CXX)
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 if(NOT DEFINED CMAKE_CXX_STANDARD OR CMAKE_CXX_STANDARD LESS 17)
@@ -9,7 +9,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-# CLIPPER2_HI_PRECISION: See GetIntersectPoint() in clipper.core.h
+# CLIPPER2_HI_PRECISION: See GetIntersectPoint() in clipper.core.h 
 option(CLIPPER2_HI_PRECISION "Caution: enabling this will compromise performance" OFF)
 
 option(CLIPPER2_UTILS "Build utilities" ON)
@@ -31,7 +31,7 @@ endif ()
 
 include(GNUInstallDirs)
 set(CLIPPER2_INC_FOLDER ${PROJECT_SOURCE_DIR}/Clipper2Lib/include/clipper2)
-configure_file(clipper.version.in
+configure_file(clipper.version.in 
   ${CLIPPER2_INC_FOLDER}/clipper.version.h NEWLINE_STYLE UNIX)
 
 set(CLIPPER2_INC
@@ -65,7 +65,7 @@ if (NOT (CLIPPER2_USINGZ STREQUAL "ONLY"))
   )
 
   target_include_directories(
-    Clipper2 PUBLIC
+    Clipper2 PUBLIC 
       $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/Clipper2Lib/include>
       $<INSTALL_INTERFACE:include>
   )
@@ -90,7 +90,7 @@ if (NOT (CLIPPER2_USINGZ STREQUAL "OFF"))
       $<$<BOOL:${CLIPPER2_HI_PRECISION}>:CLIPPER2_HI_PRECISION>
   )
   target_include_directories(
-    Clipper2Z PUBLIC
+    Clipper2Z PUBLIC 
       $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/Clipper2Lib/include>
       $<INSTALL_INTERFACE:include>
   )
@@ -130,9 +130,6 @@ if(CLIPPER2_UTILS OR CLIPPER2_TESTS OR CLIPPER2_EXAMPLES)
     add_library(Clipper2utils STATIC ${CLIPPER2_UTILS_INC} ${CLIPPER2_UTILS_SRC})
 
     target_link_libraries(Clipper2utils PUBLIC Clipper2)
-    target_include_directories(Clipper2utils
-      PUBLIC Utils
-    )
   endif()
 
   if (NOT (CLIPPER2_USINGZ STREQUAL "OFF"))
@@ -140,9 +137,6 @@ if(CLIPPER2_UTILS OR CLIPPER2_TESTS OR CLIPPER2_EXAMPLES)
     add_library(Clipper2Zutils STATIC ${CLIPPER2_UTILS_INC} ${CLIPPER2_UTILS_SRC})
 
     target_link_libraries(Clipper2Zutils PUBLIC Clipper2Z)
-    target_include_directories(Clipper2Zutils
-      PUBLIC Utils
-    )
   endif()
 
   set_target_properties(${CLIPPER2_UTILS} PROPERTIES FOLDER Libraries)
@@ -151,6 +145,25 @@ if(CLIPPER2_UTILS OR CLIPPER2_TESTS OR CLIPPER2_EXAMPLES)
       target_compile_options(${lib} PRIVATE -Wno-unused-variable -Wno-unused-function)
     endforeach()
   endif()
+
+  # install utils/zutils module
+  foreach(lib ${CLIPPER2_UTILS})
+    set_target_properties(${lib} PROPERTIES
+          PUBLIC_HEADER "${CLIPPER2_UTILS_INC}"
+    )
+    target_include_directories(${lib}
+      PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/Utils>
+        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/clipper2/Utils>
+    )
+    install(TARGETS ${lib}
+            EXPORT  Clipper2-targets
+            PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/clipper2/Utils
+            ARCHIVE       DESTINATION ${CMAKE_INSTALL_LIBDIR}
+            LIBRARY       DESTINATION ${CMAKE_INSTALL_LIBDIR}
+            RUNTIME       DESTINATION ${CMAKE_INSTALL_BINDIR})
+  endforeach()
+
 endif()
 
 if(CLIPPER2_EXAMPLES)
@@ -315,7 +328,7 @@ include(GNUInstallDirs)
 write_basic_package_version_file("${PROJECT_BINARY_DIR}/Clipper2ConfigVersion.cmake" COMPATIBILITY SameMajorVersion)
 
 configure_package_config_file(
-    "Clipper2Config.cmake.in"
+    "Clipper2Config.cmake.in" 
     "${PROJECT_BINARY_DIR}/Clipper2Config.cmake"
     INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/clipper2
 )
@@ -329,21 +342,21 @@ install(TARGETS ${CLIPPER2_LIBS} EXPORT Clipper2-targets
 )
 
 install(
-    FILES
-        ${PROJECT_BINARY_DIR}/Clipper2Config.cmake
-        ${PROJECT_BINARY_DIR}/Clipper2ConfigVersion.cmake
-    DESTINATION
+    FILES 
+        ${PROJECT_BINARY_DIR}/Clipper2Config.cmake 
+        ${PROJECT_BINARY_DIR}/Clipper2ConfigVersion.cmake 
+    DESTINATION 
         ${CMAKE_INSTALL_LIBDIR}/cmake/clipper2
 )
 
 install(
-    EXPORT
+    EXPORT 
         Clipper2-targets
-    NAMESPACE
+    NAMESPACE 
         Clipper2::
-    FILE
-        Clipper2Targets.cmake
-    DESTINATION
+    FILE 
+        Clipper2Targets.cmake 
+    DESTINATION 
         ${CMAKE_INSTALL_LIBDIR}/cmake/clipper2
 )
 

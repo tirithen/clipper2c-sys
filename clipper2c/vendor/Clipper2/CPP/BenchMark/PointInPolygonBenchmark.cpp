@@ -195,7 +195,7 @@ inline PointInPolygonResult PIP2(const Point64& pt, const Path64& polygon)
 }
 
 /////////////////////////////////////////////////////////
-// PIP3: An entirely different algorithm for comparision.
+// PIP3: An entirely different algorithm for comparison.
 // "Optimal Reliable Point-in-Polygon Test and
 // Differential Coding Boolean Operations on Polygons"
 // by Jianqiang Hao et al.
@@ -252,7 +252,7 @@ static PointInPolygonResult PIP3(const Point64&pt, const Path64&path)
 // global data structures
 /////////////////////////////////////////////////////////
 
-const Path64 points_of_interest_outside =
+const Path64 points_of_interest_outside = 
   MakePath({ 21887,10420, 21726,10825, 21662,10845, 21617,10890 });
 const Path64 points_of_interest_inside =
   MakePath({ 21887,10430, 21843,10520, 21810,10686, 21900,10461 });
@@ -393,11 +393,11 @@ int main(int argc, char** argv)
     std::endl;
 
   //////////////////////////////////////////////////////////////
-  // 1. Very basic error testing
+  // 1. Very basic error testing 
   //////////////////////////////////////////////////////////////
 
   std::cout << std::endl << SetConsoleTextColor(yellow_bold) <<
-    "Tests for errors #1:" << SetConsoleTextColor(reset) << std::endl <<
+    "Tests for errors #1:" << SetConsoleTextColor(reset) << std::endl << 
     "(Reusing 'TestPolytreeHoles' tests)" << std::endl << std::endl;
 
   // 1a. use const paths (PolytreeHoleOwner2.txt) with changing points of interest
@@ -412,7 +412,7 @@ int main(int argc, char** argv)
   if (!ifs || !ifs.good()) return 1;
   LoadTestNum(ifs, 1, paths, subject_open, clip, _, __, ___, ____);
   ifs.close();
-
+    
   for (int i = 0; i < 3; ++i) DoErrorTest1(i);
 
   // 1b. Use a const point of interest (10,10) against various paths
@@ -451,7 +451,7 @@ int main(int argc, char** argv)
 
   std::cout << std::endl << SetConsoleTextColor(cyan_bold) <<
     "Benchmarking ..." << SetConsoleTextColor(reset) << std::endl;
-  std::cout << "Note: function performance varies depending on the proportion of edges" <<
+  std::cout << "Note: function performance varies depending on the proportion of edges" << 
     std::endl << "that intersect with an imaginary horizontal line passing through the" <<
     std::endl << "point of interest." << std::endl << std::endl;
 
@@ -479,7 +479,7 @@ int main(int argc, char** argv)
   BENCHMARK(BM_PIP2)->Apply(CustomArguments); // modified Clipper2
   BENCHMARK(BM_PIP3)->Apply(CustomArguments); // Hao et al. (2018)
   benchmark::RunSpecifiedBenchmarks(benchmark::CreateDefaultDisplayReporter());
-
+  
   std::cout << std::endl << std::endl << SetConsoleTextColor(yellow_bold) <<
     "Benchmarks 2:" << SetConsoleTextColor(reset) << std::endl;
 

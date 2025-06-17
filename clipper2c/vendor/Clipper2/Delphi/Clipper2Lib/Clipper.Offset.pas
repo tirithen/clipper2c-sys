@@ -2,11 +2,11 @@ unit Clipper.Offset;
 
 (*******************************************************************************
 * Author    :  Angus Johnson                                                   *
-* Date      :  24 July 2024                                                    *
-* Website   :  http://www.angusj.com                                           *
-* Copyright :  Angus Johnson 2010-2024                                         *
+* Date      :  4 May 2025                                                      *
+* Website   :  https://www.angusj.com                                          *
+* Copyright :  Angus Johnson 2010-2025                                         *
 * Purpose   :  Path Offset (Inflate/Shrink)                                    *
-* License   :  http://www.boost.org/LICENSE_1_0.txt                            *
+* License   :  https://www.boost.org/LICENSE_1_0.txt                           *
 *******************************************************************************)
 
 {$I Clipper.inc}
@@ -72,13 +72,14 @@ type
     fZCallback64 : TZCallback64;
     procedure ZCB(const bot1, top1, bot2, top2: TPoint64;
       var intersectPt: TPoint64);
-    procedure AddPoint(x,y: double; z: Int64); overload;
+    procedure AddPoint(x,y: double; z: ZType); overload;
     procedure AddPoint(const pt: TPoint64); overload;
       {$IFDEF INLINING} inline; {$ENDIF}
-    procedure AddPoint(const pt: TPoint64; newZ: Int64); overload;
+    procedure AddPoint(const pt: TPoint64; newZ: ZType); overload;
       {$IFDEF INLINING} inline; {$ENDIF}
 {$ELSE}
     procedure AddPoint(x,y: double); overload;
+
     procedure AddPoint(const pt: TPoint64); overload;
       {$IFDEF INLINING} inline; {$ENDIF}
 {$ENDIF}
@@ -141,6 +142,20 @@ const
   TwoPi     : Double = 2 * PI;
   InvTwoPi  : Double = 1/(2 * PI);
 
+// Clipper2 approximates arcs by using series of relatively short straight
+//line segments. And logically, shorter line segments will produce better arc
+// approximations. But very short segments can degrade performance, usually
+// with little or no discernable improvement in curve quality. Very short
+// segments can even detract from curve quality, due to the effects of integer
+// rounding. Since there isn't an optimal number of line segments for any given
+// arc radius (that perfectly balances curve approximation with performance),
+// arc tolerance is user defined. Nevertheless, when the user doesn't define
+// an arc tolerance (ie leaves alone the 0 default value), the calculated
+// default arc tolerance (offset_radius / 500) generally produces good (smooth)
+// arc approximations without producing excessively small segment lengths.
+// See also: https://www.angusj.com/clipper2/Docs/Trigonometry.htm
+const arc_const = 0.002; // <-- 1/500
+
 //------------------------------------------------------------------------------
 //  Miscellaneous offset support functions
 //------------------------------------------------------------------------------
@@ -201,21 +216,30 @@ begin
 end;
 //------------------------------------------------------------------------------
 
-function GetLowestPolygonIdx(const paths: TPaths64): integer;
+procedure GetLowestPolygonInfo(const paths: TPaths64;
+  out idx: integer; out IsNegArea: Boolean);
 var
   i,j: integer;
+  a  : double;
   botPt: TPoint64;
 begin
-	Result := -1;
+	idx := -1;
   botPt := Point64(MaxInt64, MinInt64);
   for i := 0 to High(paths) do
   begin
+    a := MaxDouble;
     for j := 0 to High(paths[i]) do
       with paths[i][j] do
       begin
         if (Y < botPt.Y) or
           ((Y = botPt.Y) and (X >= botPt.X)) then Continue;
-        result := i;
+        if a = MaxDouble then
+        begin
+          a := Area(paths[i]);
+          if (a = 0) then Break; // invalid closed path, break from inner loop
+          IsNegArea := a < 0;
+        end;
+        idx := i;
         botPt.X := X;
         botPt.Y := Y;
       end;
@@ -235,8 +259,9 @@ end;
 
 constructor TGroup.Create(const pathsIn: TPaths64; jt: TJoinType; et: TEndType);
 var
-  i, len: integer;
-  isJoined: boolean;
+  i, len    : integer;
+  isJoined  : boolean;
+  isNegArea : Boolean;
 begin
   Self.joinType := jt;
   Self.endType := et;
@@ -253,8 +278,8 @@ begin
     // the lowermost path must be an outer path, so if its orientation is
     // negative, then flag that the whole group is 'reversed' (so negate
     // delta etc.) as this is much more efficient than reversing every path.
-	  lowestPathIdx := GetLowestPolygonIdx(pathsIn);
-    reversed := (lowestPathIdx >= 0) and (Area(pathsIn[lowestPathIdx]) < 0);
+    GetLowestPolygonInfo(pathsIn, lowestPathIdx, isNegArea);
+    reversed := (lowestPathIdx >= 0) and isNegArea;
   end else
     lowestPathIdx := -1;
 end;
@@ -363,13 +388,12 @@ begin
   if (group.joinType = jtRound) or (group.endType = etRound) then
   begin
 		// calculate the number of steps required to approximate a circle
-    // (see http://www.angusj.com/clipper2/Docs/Trigonometry.htm)
+    // (see https://www.angusj.com/clipper2/Docs/Trigonometry.htm)
 		// arcTol - when arc_tolerance_ is undefined (0) then curve imprecision
     // will be relative to the size of the offset (delta). Obviously very
     //large offsets will almost always require much less precision.
-    arcTol := Iif(fArcTolerance > 0.01,
-      Min(absDelta, fArcTolerance),
-      Log10(2 + absDelta) * 0.25); // empirically derived
+    arcTol := Iif(fArcTolerance > 0.0,
+      Min(absDelta, fArcTolerance), absDelta * arc_const);
 
     stepsPer360 := Pi / ArcCos(1 - arcTol / absDelta);
 		if (stepsPer360 > absDelta * Pi) then
@@ -601,8 +625,8 @@ begin
   fDelta := delta;
   // Miter Limit: see offset_triginometry3.svg
   if fMiterLimit > 1 then
-    fTmpLimit := 2 / Sqr(fMiterLimit) else
-    fTmpLimit := 2.0;
+    fTmpLimit := 2 / Sqr(fMiterLimit) -1 else
+    fTmpLimit := -0.5;
 
   // nb: delta will depend on whether paths are polygons or open
   for i := 0 to fGroupList.Count -1 do
@@ -695,7 +719,7 @@ end;
 //------------------------------------------------------------------------------
 
 {$IFDEF USINGZ}
-procedure TClipperOffset.AddPoint(x,y: double; z: Int64);
+procedure TClipperOffset.AddPoint(x,y: double; z: ZType);
 {$ELSE}
 procedure TClipperOffset.AddPoint(x,y: double);
 {$ENDIF}
@@ -719,7 +743,7 @@ end;
 //------------------------------------------------------------------------------
 
 {$IFDEF USINGZ}
-procedure TClipperOffset.AddPoint(const pt: TPoint64; newZ: Int64);
+procedure TClipperOffset.AddPoint(const pt: TPoint64; newZ: ZType);
 begin
   AddPoint(pt.X, pt.Y, newZ);
 end;
@@ -744,7 +768,7 @@ var
   m1,b1,m2,b2: double;
 begin
   result := NullPointD;
-  //see http://astronomy.swin.edu.au/~pbourke/geometry/lineline2d/
+  //see https://paulbourke.net/geometry/pointlineplane/#i2l
   if (ln1B.X = ln1A.X) then
   begin
     if (ln2B.X = ln2A.X) then exit; //parallel lines
@@ -916,10 +940,8 @@ begin
     // when fDeltaCallback64 is assigned, fGroupDelta won't be constant,
     // so we'll need to do the following calculations for *every* vertex.
     absDelta := Abs(fGroupDelta);
-    arcTol := Iif(fArcTolerance > 0.01,
-      Min(absDelta, fArcTolerance),
-      Log10(2 + absDelta) * 0.25); // empirically derived
-    //http://www.angusj.com/clipper2/Docs/Trigonometry.htm
+    arcTol := Iif(fArcTolerance > 0.0,
+      Min(absDelta, fArcTolerance), absDelta * arc_const);
     stepsPer360 := Pi / ArcCos(1 - arcTol / absDelta);
 		if (stepsPer360 > absDelta * Pi) then
 			stepsPer360 := absDelta * Pi;  // avoid excessive precision
@@ -996,15 +1018,11 @@ begin
     // (ie over-shrunk paths) are removed.
 {$IFDEF USINGZ}
     AddPoint(GetPerpendic(fInPath[j], fNorms[k], fGroupDelta), fInPath[j].Z);
-{$ELSE}
-    AddPoint(GetPerpendic(fInPath[j], fNorms[k], fGroupDelta));
-{$ENDIF}
-    // when the angle is almost flat (cos_a ~= 1),
-    // it's safe to skip inserting this middle point
-		if (cosA < 0.999) then AddPoint(fInPath[j]); // (#405, #873)
-{$IFDEF USINGZ}
+    AddPoint(fInPath[j]); // (#405, #873)
     AddPoint(GetPerpendic(fInPath[j], fNorms[j], fGroupDelta), fInPath[j].Z);
 {$ELSE}
+    AddPoint(GetPerpendic(fInPath[j], fNorms[k], fGroupDelta));
+    AddPoint(fInPath[j]); // (#405, #873)
     AddPoint(GetPerpendic(fInPath[j], fNorms[j], fGroupDelta));
 {$ENDIF}
   end
@@ -1016,7 +1034,7 @@ begin
   else if (fJoinType = jtMiter) then
   begin
 		// miter unless the angle is sufficiently acute to exceed ML
-    if (cosA > fTmpLimit -1) then DoMiter(j, k, cosA)
+    if (cosA > fTmpLimit) then DoMiter(j, k, cosA)
     else DoSquare(j, k);
   end
   else if (fJoinType = jtRound) then

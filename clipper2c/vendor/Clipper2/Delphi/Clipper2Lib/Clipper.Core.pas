@@ -2,12 +2,12 @@ unit Clipper.Core;
 
 (*******************************************************************************
 * Author    :  Angus Johnson                                                   *
-* Date      :  13 May 2024                                                     *
-* Website   :  http://www.angusj.com                                           *
+* Date      :  10 May 2025                                                     *
+* Website   :  https://www.angusj.com                                          *
 * Copyright :  Angus Johnson 2010-2024                                         *
 * Purpose   :  Core Clipper Library module                                     *
 *              Contains structures and functions used throughout the library   *
-* License   :  http://www.boost.org/LICENSE_1_0.txt                            *
+* License   :  https://www.boost.org/LICENSE_1_0.txt                           *
 *******************************************************************************)
 
 {$I Clipper.inc}
@@ -18,12 +18,15 @@ uses
   SysUtils, Classes, Math;
 
 type
+{$IFDEF USINGZ}
+    ZType = Int64; // or alternatively, ZType = double
+{$ENDIF}
 
   PPoint64  = ^TPoint64;
   TPoint64  = record
     X, Y: Int64;
 {$IFDEF USINGZ}
-    Z: Int64;
+    Z: ZType;
 {$ENDIF}
   end;
 
@@ -31,7 +34,7 @@ type
   TPointD   = record
     X, Y: double;
 {$IFDEF USINGZ}
-    Z: Int64;
+    Z: ZType;
 {$ENDIF}
   end;
 
@@ -121,6 +124,7 @@ type
     fCount    : integer;
     fCapacity : integer;
     fList     : TPointerList;
+    fSorted   : Boolean;
   protected
     function UnsafeGet(idx: integer): Pointer; // no range checking
     procedure UnsafeSet(idx: integer; val: Pointer);
@@ -130,14 +134,16 @@ type
     destructor Destroy; override;
     procedure Clear; virtual;
     function Add(item: Pointer): integer;
+    procedure DeleteLast;
     procedure Swap(idx1, idx2: integer);
-    procedure Sort(Compare: TListSortCompare);
+    procedure Sort(Compare: TListSortCompareFunc);
     procedure Resize(count: integer);
     property Count: integer read fCount;
+    property Sorted: Boolean read fSorted;
     property Item[idx: integer]: Pointer read UnsafeGet; default;
   end;
 
-  TClipType = (ctNone, ctIntersection, ctUnion, ctDifference, ctXor);
+  TClipType = (ctNoClip, ctIntersection, ctUnion, ctDifference, ctXor);
 
   TPointInPolygonResult = (pipOn, pipInside, pipOutside);
 
@@ -186,11 +192,11 @@ function PointsNearEqual(const pt1, pt2: TPointD; distanceSqrd: double): Boolean
   {$IFDEF INLINING} inline; {$ENDIF}
 
 {$IFDEF USINGZ}
-function Point64(const X, Y: Int64; Z: Int64 = 0): TPoint64; overload;
+function Point64(const X, Y: Int64; Z: ZType = 0): TPoint64; overload;
 {$IFDEF INLINING} inline; {$ENDIF}
-function Point64(const X, Y: Double; Z: Int64 = 0): TPoint64; overload;
+function Point64(const X, Y: Double; Z: ZType = 0): TPoint64; overload;
 {$IFDEF INLINING} inline; {$ENDIF}
-function PointD(const X, Y: Double; Z: Int64 = 0): TPointD; overload;
+function PointD(const X, Y: Double; Z: ZType = 0): TPointD; overload;
 {$IFDEF INLINING} inline; {$ENDIF}
 {$ELSE}
 function Point64(const X, Y: Int64): TPoint64; overload; {$IFDEF INLINING} inline; {$ENDIF}
@@ -319,6 +325,7 @@ function GetSegmentIntersectPt(const ln1a, ln1b, ln2a, ln2b: TPoint64;
   out ip: TPoint64): Boolean;
 
 function PointInPolygon(const pt: TPoint64; const polygon: TPath64): TPointInPolygonResult;
+function Path2ContainsPath1(const path1, path2: TPath64): Boolean;
 
 function GetClosestPointOnSegment(const pt, seg1, seg2: TPoint64): TPoint64;
   {$IFDEF INLINING} inline; {$ENDIF}
@@ -540,6 +547,7 @@ begin
   fList := nil;
   fCount := 0;
   fCapacity := 0;
+  fSorted := false;
 end;
 //------------------------------------------------------------------------------
 
@@ -555,6 +563,13 @@ begin
   fList[fCount] := item;
   Result := fCount;
   inc(fCount);
+  fSorted := false;
+end;
+//------------------------------------------------------------------------------
+
+procedure TListEx.DeleteLast;
+begin
+  dec(fCount);
 end;
 //------------------------------------------------------------------------------
 
@@ -611,10 +626,11 @@ begin
 end;
 //------------------------------------------------------------------------------
 
-procedure TListEx.Sort(Compare: TListSortCompare);
+procedure TListEx.Sort(Compare: TListSortCompareFunc);
 begin
   if fCount < 2 then Exit;
   QuickSort(FList, 0, fCount - 1, Compare);
+  fSorted := true;
 end;
 //------------------------------------------------------------------------------
 
@@ -654,6 +670,7 @@ begin
   p := fList[idx1];
   fList[idx1] := fList[idx2];
   fList[idx2] := p;
+  fSorted := false;
 end;
 
 //------------------------------------------------------------------------------
@@ -1383,7 +1400,7 @@ end;
 //------------------------------------------------------------------------------
 
 {$IFDEF USINGZ}
-function Point64(const X, Y: Int64; Z: Int64): TPoint64;
+function Point64(const X, Y: Int64; Z: ZType): TPoint64;
 begin
   Result.X := X;
   Result.Y := Y;
@@ -1391,7 +1408,7 @@ begin
 end;
 //------------------------------------------------------------------------------
 
-function Point64(const X, Y: Double; Z: Int64): TPoint64;
+function Point64(const X, Y: Double; Z: ZType): TPoint64;
 begin
   Result.X := Round(X);
   Result.Y := Round(Y);
@@ -1399,7 +1416,7 @@ begin
 end;
 //------------------------------------------------------------------------------
 
-function PointD(const X, Y: Double; Z: Int64): TPointD;
+function PointD(const X, Y: Double; Z: ZType): TPointD;
 begin
   Result.X := X;
   Result.Y := Y;
@@ -2197,6 +2214,38 @@ end;
 //------------------------------------------------------------------------------
 {$R+}
 
+function Path2ContainsPath1(const path1, path2: TPath64): Boolean;
+var
+  i   : integer;
+  mp  : TPoint64;
+  pip : TPointInPolygonResult;
+begin
+  // precondition: paths must not intersect, except for
+  // transient (and presumed 'micro') path intersections
+  Result := false;
+  pip := pipOn;
+  for i := 0 to High(path1) do
+  begin
+    case PointInPolygon(path1[i], path2) of
+      pipOutside:
+      begin
+        if (pip = pipOutside) then Exit;
+        pip := pipOutside;
+      end;
+      pipInside:
+      begin
+        if (pip = pipInside) then begin Result := true; Exit; end;
+        pip := pipInside;
+      end;
+    end;
+  end;
+  if (pip <> pipInside) then Exit;
+  // result is likely true but check midpoint
+  mp := GetBounds(path1).MidPoint;
+  Result := PointInPolygon(mp, path2) = pipInside;
+end;
+//------------------------------------------------------------------------------
+
 procedure GetSinCos(angle: double; out sinA, cosA: double);
   {$IFDEF INLINE} inline; {$ENDIF}
 {$IFNDEF FPC}
@@ -2402,3 +2451,4 @@ end;
 //------------------------------------------------------------------------------
 
 end.
+

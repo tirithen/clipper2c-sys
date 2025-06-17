@@ -3,16 +3,16 @@
 
 #include <cstdlib>
 #include <string>
-#include <chrono>
+#include <chrono> 
 #include <iomanip>
 #include <sstream>
 
 /*
 
 Timer Usage:
-The Timer object will start immediately following its construction
-(unless "start_paused" is true). The timer's pause() and resume() can
-be called an number of times and the total interval while unpaused
+The Timer object will start immediately following its construction 
+(unless "start_paused" is true). The timer's pause() and resume() can 
+be called an number of times and the total interval while unpaused 
 will be returned when elapsed() is called.
 
 Example:
@@ -38,7 +38,7 @@ private:
 
 public:
 
-  Timer(bool start_paused = false): paused_(start_paused)
+  Timer(bool start_paused = false): paused_(start_paused) 
   {
     if (!paused_) time_started_ =
       std::chrono::high_resolution_clock::now();

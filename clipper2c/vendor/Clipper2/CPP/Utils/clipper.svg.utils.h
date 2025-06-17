@@ -1,9 +1,9 @@
 /*******************************************************************************
 * Author    :  Angus Johnson                                                   *
 * Date      :  16 June 2022                                                    *
-* Website   :  http://www.angusj.com                                           *
+* Website   :  https://www.angusj.com                                          *
 * Copyright :  Angus Johnson 2010-2022                                         *
-* License   :  http://www.boost.org/LICENSE_1_0.txt                            *
+* License   :  https://www.boost.org/LICENSE_1_0.txt                           *
 *******************************************************************************/
 
 #ifndef svgutillib_h
@@ -19,6 +19,8 @@
 #include <unistd.h>
 #endif
 
+#include <filesystem>
+
 namespace Clipper2Lib {
 
   static const unsigned subj_brush_clr = 0x1800009C;
@@ -27,10 +29,10 @@ namespace Clipper2Lib {
   static const unsigned clip_stroke_clr = 0xCCFFA07A;
   static const unsigned solution_brush_clr = 0x4466FF66;
 
+
   inline bool FileExists(const std::string& name)
   {
-    struct stat buffer;
-    return (stat(name.c_str(), &buffer) == 0);
+      return std::filesystem::exists(name);
   }
 
   inline void SvgAddCaption(SvgWriter& svg, const std::string& caption, int x, int y)

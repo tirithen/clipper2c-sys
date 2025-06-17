@@ -1,9 +1,9 @@
 ﻿/*******************************************************************************
 * Author    :  Angus Johnson                                                   *
 * Date      :  11 February 2023                                                *
-* Website   :  http://www.angusj.com                                           *
+* Website   :  https://www.angusj.com                                          *
 * Copyright :  Angus Johnson 2010-2023                                         *
-* License   :  http://www.boost.org/LICENSE_1_0.txt                            *
+* License   :  https://www.boost.org/LICENSE_1_0.txt                           *
 *******************************************************************************/
 
 using System;
@@ -23,9 +23,9 @@ namespace ClipperDemo1
     ////////////////////
     public static void Main()
     {
-      // although RectClip isn't really designed for
-      // complex  self-intersecting polygons, it still
-      // handles them pretty well.
+      // although RectClip isn't really designed for 
+      // complex  self-intersecting polygons, it still 
+      // handles them pretty well.      
       DoRandomPoly(/* true == repeat last random */);
     }
 
@@ -43,7 +43,7 @@ namespace ClipperDemo1
         writer.Write("{0},{1} ", pt.X, pt.Y);
       writer.Write("\r\n");
       writer.Close();
-      return true;
+      return true; 
     }
 
     public static bool RestoreBackup(string filename, out Paths64 sub, out Paths64 clp)
@@ -75,7 +75,7 @@ namespace ClipperDemo1
         if (!RestoreBackup(".\\backup.txt", out sub, out clp)) return;
         rec = Clipper.GetBounds(clp);
       }
-      else
+      else      
       {
         clp.Add(rec.AsPath());
         sub.Add(MakeRandomPath(displayWidth, displayHeight, edgeCount, rand));

@@ -37,5 +37,5 @@
     <None Remove="*.svg" />
     <None Remove="*.ico" />
   </ItemGroup>
-
+  
 </Project>
