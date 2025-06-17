@@ -14,6 +14,18 @@ All notable changes to this project will be documented in this file. See [standa
 
 * use c++ memory allocator to match delete calls ([fb47275](https://github.com/tirithen/clipper2c-sys/commit/fb4727519179c0db2b08dc3a421b9c2b0447f811))
 
+### [0.1.5](https://github.com/tirithen/clipper2c-sys/compare/v0.1.4...v0.1.5) (2025-06-17)
+
+
+### Features
+
+* use clipper c++ lib version 1.5.4 ([f888844](https://github.com/tirithen/clipper2c-sys/commit/f88884478d8e5b776dfd8623b4114d1151af6224))
+
+
+### Bug Fixes
+
+* use c++ memory allocator to match delete calls ([fb47275](https://github.com/tirithen/clipper2c-sys/commit/fb4727519179c0db2b08dc3a421b9c2b0447f811))
+
 ### [0.1.4](https://github.com/tirithen/clipper2c-sys/compare/v0.1.3...v0.1.4) (2024-07-30)
 
 
