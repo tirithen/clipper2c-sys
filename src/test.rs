@@ -6,8 +6,13 @@ use crate::*;
 extern "C" {
     fn clipper_rect64_size() -> usize;
     fn clipper_rectd_size() -> usize;
-    fn clipper_rect64(mem: *mut c_void, left: i64, top: i64, right: i64, bottom: i64)
-        -> *mut ClipperRect64;
+    fn clipper_rect64(
+        mem: *mut c_void,
+        left: i64,
+        top: i64,
+        right: i64,
+        bottom: i64,
+    ) -> *mut ClipperRect64;
     fn clipper_rectd(
         mem: *mut c_void,
         left: f64,
@@ -25,7 +30,8 @@ extern "C" {
     ) -> *mut ClipperRect64;
     fn clipper_rectd_width(r: *mut ClipperRectD) -> f64;
     fn clipper_rectd_height(r: *mut ClipperRectD) -> f64;
-    fn clipper_rectd_scale(mem: *mut c_void, r: *mut ClipperRectD, scale: f64) -> *mut ClipperRectD;
+    fn clipper_rectd_scale(mem: *mut c_void, r: *mut ClipperRectD, scale: f64)
+        -> *mut ClipperRectD;
     fn clipper_delete_rect64(p: *mut ClipperRect64);
     fn clipper_delete_rectd(p: *mut ClipperRectD);
     fn clipper_svgwriter_size() -> usize;
@@ -51,7 +57,10 @@ extern "C" {
     ) -> c_int;
     fn clipper_svgwriter_clear(w: *mut ClipperSvgWriter);
     fn clipper_svgreader_load_from_file(r: *mut ClipperSvgReader, filename: *const i8);
-    fn clipper_svgreader_get_pathsd(mem: *mut c_void, r: *mut ClipperSvgReader) -> *mut ClipperPathsD;
+    fn clipper_svgreader_get_pathsd(
+        mem: *mut c_void,
+        r: *mut ClipperSvgReader,
+    ) -> *mut ClipperPathsD;
     fn clipper_svgreader_clear(r: *mut ClipperSvgReader);
     fn clipper_delete_svgwriter(p: *mut ClipperSvgWriter);
     fn clipper_delete_svgreader(p: *mut ClipperSvgReader);
@@ -219,7 +228,6 @@ fn test_polytree64_memory() {
     }
 }
 
-
 #[test]
 fn test_clipper_offset_memory() {
     let mut square = vec![
@@ -265,7 +273,6 @@ fn test_clipper_offset_memory() {
         }
     }
 }
-
 
 #[test]
 fn test_rect64_scale_correctness() {
@@ -333,7 +340,6 @@ fn test_rect64_memory() {
     }
 }
 
-
 #[test]
 fn test_pathd_memory() {
     let mut points: Vec<ClipperPointD> = (0..100)
@@ -376,7 +382,8 @@ fn test_clipperd_execute_memory() {
     for _ in 0..LEAK_ITERATIONS {
         unsafe {
             let subject_mem = alloc(clipper_pathd_size());
-            let subject = clipper_pathd_of_points(subject_mem, triangle.as_mut_ptr(), triangle.len());
+            let subject =
+                clipper_pathd_of_points(subject_mem, triangle.as_mut_ptr(), triangle.len());
             let subjects_mem = alloc(clipper_pathsd_size());
             let subjects = clipper_pathsd_of_paths(subjects_mem, [subject].as_mut_ptr(), 1);
 
@@ -415,7 +422,6 @@ fn test_clipperd_execute_memory() {
         }
     }
 }
-
 
 #[test]
 fn test_path_conversion_memory() {
@@ -502,7 +508,10 @@ fn test_pathd_to_points_memory() {
 #[test]
 fn test_scale_path_conversion_memory() {
     let mut points: Vec<ClipperPoint64> = (0..100)
-        .map(|i| ClipperPoint64 { x: i * 10, y: i * 20 })
+        .map(|i| ClipperPoint64 {
+            x: i * 10,
+            y: i * 20,
+        })
         .collect();
 
     for _ in 0..LEAK_ITERATIONS {
@@ -527,7 +536,6 @@ fn test_scale_path_conversion_memory() {
         }
     }
 }
-
 
 #[test]
 fn test_minkowski_sum_memory() {
@@ -560,13 +568,8 @@ fn test_minkowski_sum_memory() {
             let paths_mem = alloc(clipper_paths64_size());
             let paths = clipper_paths64_of_paths(paths_mem, [p].as_mut_ptr(), 1);
             let mresult_mem = alloc(clipper_paths64_size());
-            let mresult = clipper_paths64_minkowski_sum(
-                mresult_mem,
-                pat,
-                paths,
-                1,
-                ClipperFillRule_EVEN_ODD,
-            );
+            let mresult =
+                clipper_paths64_minkowski_sum(mresult_mem, pat, paths, 1, ClipperFillRule_EVEN_ODD);
             assert!(clipper_paths64_length(mresult) > 0);
 
             clipper_delete_paths64(mresult);
@@ -577,7 +580,6 @@ fn test_minkowski_sum_memory() {
         }
     }
 }
-
 
 #[test]
 fn test_svgwriter_memory() {
@@ -634,7 +636,6 @@ fn test_svgreader_memory() {
         }
     }
 }
-
 
 #[test]
 fn test_path_simplify_memory() {
@@ -824,7 +825,6 @@ fn test_inflate_memory() {
         }
     }
 }
-
 
 #[test]
 fn test_difference_boolean_operation() {

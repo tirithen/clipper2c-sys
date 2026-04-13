@@ -30,12 +30,10 @@ fn bench_boolean_difference(c: &mut Criterion) {
                 clipper_paths64_of_paths(subjects_mem, [subject_ptr].as_mut_ptr(), 1);
 
             let clip_mem = alloc(clipper_path64_size());
-            let clip_ptr =
-                clipper_path64_of_points(clip_mem, square.as_mut_ptr(), square.len());
+            let clip_ptr = clipper_path64_of_points(clip_mem, square.as_mut_ptr(), square.len());
 
             let clips_mem = alloc(clipper_paths64_size());
-            let clips_ptr =
-                clipper_paths64_of_paths(clips_mem, [clip_ptr].as_mut_ptr(), 1);
+            let clips_ptr = clipper_paths64_of_paths(clips_mem, [clip_ptr].as_mut_ptr(), 1);
 
             let clipper_mem = alloc(clipper_clipper64_size());
             let clipper_ptr = clipper_clipper64(clipper_mem);
@@ -78,8 +76,7 @@ fn bench_path64_of_points(c: &mut Criterion) {
     c.bench_function("path64_of_points_1000", |b| {
         b.iter(|| unsafe {
             let mem = alloc(clipper_path64_size());
-            let path =
-                clipper_path64_of_points(mem, points.as_mut_ptr(), points.len());
+            let path = clipper_path64_of_points(mem, points.as_mut_ptr(), points.len());
             let len = clipper_path64_length(path);
             clipper_delete_path64(path);
             black_box(len)
@@ -98,8 +95,7 @@ fn bench_pathd_of_points(c: &mut Criterion) {
     c.bench_function("pathd_of_points_1000", |b| {
         b.iter(|| unsafe {
             let mem = alloc(clipper_pathd_size());
-            let path =
-                clipper_pathd_of_points(mem, points.as_mut_ptr(), points.len());
+            let path = clipper_pathd_of_points(mem, points.as_mut_ptr(), points.len());
             let len = clipper_pathd_length(path);
             clipper_delete_pathd(path);
             black_box(len)
@@ -143,8 +139,7 @@ fn bench_inflate(c: &mut Criterion) {
 
     let (path, paths) = unsafe {
         let path_mem = alloc(clipper_path64_size());
-        let path =
-            clipper_path64_of_points(path_mem, points.as_mut_ptr(), points.len());
+        let path = clipper_path64_of_points(path_mem, points.as_mut_ptr(), points.len());
         let paths_mem = alloc(clipper_paths64_size());
         let paths = clipper_paths64_of_paths(paths_mem, [path].as_mut_ptr(), 1);
         (path, paths)
@@ -248,18 +243,14 @@ fn bench_polytree(c: &mut Criterion) {
     c.bench_function("polytree_execute_and_extract", |b| {
         b.iter(|| unsafe {
             let outer_mem = alloc(clipper_path64_size());
-            let outer_path =
-                clipper_path64_of_points(outer_mem, outer.as_mut_ptr(), outer.len());
+            let outer_path = clipper_path64_of_points(outer_mem, outer.as_mut_ptr(), outer.len());
             let subjects_mem = alloc(clipper_paths64_size());
-            let subjects =
-                clipper_paths64_of_paths(subjects_mem, [outer_path].as_mut_ptr(), 1);
+            let subjects = clipper_paths64_of_paths(subjects_mem, [outer_path].as_mut_ptr(), 1);
 
             let inner_mem = alloc(clipper_path64_size());
-            let inner_path =
-                clipper_path64_of_points(inner_mem, inner.as_mut_ptr(), inner.len());
+            let inner_path = clipper_path64_of_points(inner_mem, inner.as_mut_ptr(), inner.len());
             let clips_mem = alloc(clipper_paths64_size());
-            let clips =
-                clipper_paths64_of_paths(clips_mem, [inner_path].as_mut_ptr(), 1);
+            let clips = clipper_paths64_of_paths(clips_mem, [inner_path].as_mut_ptr(), 1);
 
             let clipper_mem = alloc(clipper_clipper64_size());
             let clipper = clipper_clipper64(clipper_mem);
