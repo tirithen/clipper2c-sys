@@ -89,8 +89,7 @@ void clipper_svgreader_load_from_file(ClipperSvgReader *r,
 void clipper_svgreader_clear(ClipperSvgReader *r) { from_c(r)->Clear(); }
 
 ClipperPathsD *clipper_svgreader_get_pathsd(void *mem, ClipperSvgReader *r) {
-  auto ps = from_c(r)->GetPaths();
-  return to_c(new (mem) PathsD(ps));
+  return to_c(new (mem) PathsD(from_c(r)->GetPaths()));
 }
 
 #ifdef __cplusplus

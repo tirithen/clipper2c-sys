@@ -36,8 +36,7 @@ ClipperPoint64 clipper_rect64_midpoint(ClipperRect64 *r) {
 }
 
 ClipperPath64 *clipper_rect64_as_path(void *mem, ClipperRect64 *r) {
-  auto p = from_c(r)->AsPath();
-  return to_c(new (mem) Path64(p));
+  return to_c(new (mem) Path64(from_c(r)->AsPath()));
 }
 
 int clipper_rect64_contains_pt(ClipperRect64 *r, ClipperPoint64 pt) {
@@ -76,8 +75,7 @@ ClipperPointD clipper_rectd_midpoint(ClipperRectD *r) {
 }
 
 ClipperPathD *clipper_rectd_as_path(void *mem, ClipperRectD *r) {
-  auto p = from_c(r)->AsPath();
-  return to_c(new (mem) PathD(p));
+  return to_c(new (mem) PathD(from_c(r)->AsPath()));
 }
 
 int clipper_rectd_contains_pt(ClipperRectD *r, ClipperPointD pt) {
@@ -107,12 +105,12 @@ int clipper_rectd_intersects(ClipperRectD *a, ClipperRectD *b) {
 // Conversion (to C)
 
 struct ClipperRect64 clipper_rect64_to_struct(ClipperRect64 *rect) {
-  auto r = *from_c(rect);
+  const auto &r = *from_c(rect);
   return {r.left, r.top, r.right, r.bottom};
 }
 
 struct ClipperRectD clipper_rectd_to_struct(ClipperRectD *rect) {
-  auto r = *from_c(rect);
+  const auto &r = *from_c(rect);
   return {r.left, r.top, r.right, r.bottom};
 }
 

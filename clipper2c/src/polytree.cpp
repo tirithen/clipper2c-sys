@@ -53,7 +53,7 @@ int clipper_polytree64_is_hole(ClipperPolyTree64 *pt) {
 }
 
 ClipperPath64 *clipper_polytree64_polygon(void *mem, ClipperPolyTree64 *pt) {
-  auto p = from_c(pt)->Polygon();
+  const auto &p = from_c(pt)->Polygon();
   return to_c(new (mem) Path64(p));
 }
 
@@ -62,8 +62,7 @@ double clipper_polytree64_area(ClipperPolyTree64 *pt) {
 }
 
 ClipperPaths64 *clipper_polytree64_to_paths(void *mem, ClipperPolyTree64 *pt) {
-  auto paths = PolyTreeToPaths64(*from_c(pt));
-  return to_c(new (mem) Paths64(paths));
+  return to_c(new (mem) Paths64(PolyTreeToPaths64(*from_c(pt))));
 }
 
 int clipper_polytree64_fully_contains_children(ClipperPolyTree64 *pt) {
@@ -109,7 +108,7 @@ int clipper_polytreed_is_hole(ClipperPolyTreeD *pt) {
 }
 
 ClipperPathD *clipper_polytreed_polygon(void *mem, ClipperPolyTreeD *pt) {
-  auto p = from_c(pt)->Polygon();
+  const auto &p = from_c(pt)->Polygon();
   return to_c(new (mem) PathD(p));
 }
 
@@ -118,8 +117,7 @@ double clipper_polytreed_area(ClipperPolyTreeD *pt) {
 }
 
 ClipperPathsD *clipper_polytreed_to_paths(void *mem, ClipperPolyTreeD *pt) {
-  auto paths = PolyTreeToPathsD(*from_c(pt));
-  return to_c(new (mem) PathsD(paths));
+  return to_c(new (mem) PathsD(PolyTreeToPathsD(*from_c(pt))));
 }
 
 #ifdef __cplusplus
