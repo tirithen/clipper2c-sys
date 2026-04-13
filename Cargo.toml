@@ -20,6 +20,13 @@ serde = ["dep:serde"]
 libc = "0.2"
 serde = { version = "1.0", features = ["derive"], optional = true }
 
+[dev-dependencies]
+criterion = { version = "0.5", features = ["html_reports"] }
+
 [build-dependencies]
 bindgen = { version = "0.69.4", optional = true }
 cc = "1.0.94"
+
+[[bench]]
+name = "ffi_bench"
+harness = false
