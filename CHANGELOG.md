@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file. See [standa
 
 ### [0.1.6](https://github.com/tirithen/clipper2c-sys/compare/v0.1.5...v0.1.6) (2026-04-13)
 
+This release contains performance improvements that reduces the memory use of the FFI code using references over copying data [6403217](https://github.com/tirithen/clipper2c-sys/commit/64032177d6b0afcd241b5b65f0c41b48a6d532db)
 
 ### Bug Fixes
 
