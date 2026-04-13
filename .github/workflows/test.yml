@@ -26,6 +26,22 @@ jobs:
       - uses: actions-rust-lang/setup-rust-toolchain@v1
       - run: cargo test --all-features
 
+  valgrind_ubuntu:
+    name: valgrind memcheck (ubuntu)
+    needs:
+      - test_all_ubuntu
+      - test_ubuntu
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
+      - name: Install valgrind
+        run: sudo apt-get update && sudo apt-get install -y valgrind
+      - name: Build tests
+        run: cargo test --no-run --message-format=json 2>/dev/null | jq -r 'select(.executable != null) | .executable' | head -1 > /tmp/test_binary
+      - name: Run valgrind
+        run: valgrind --leak-check=full --error-exitcode=1 --suppressions=rust_test.supp $(cat /tmp/test_binary) --test-threads=1
+
   test_ubuntu:
     name: cargo test (ubuntu)
     needs: formatting

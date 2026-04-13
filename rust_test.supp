@@ -1,0 +1,9 @@
+# Rust test harness thread-local initialization — not a real leak
+{
+   rust_test_harness_thread_local
+   Memcheck:Leak
+   match-leak-kinds:possible
+   fun:malloc
+   ...
+   fun:*std*thread*Thread*new*
+}
