@@ -1,0 +1,55 @@
+# git-cliff configuration
+# https://git-cliff.org/docs/configuration
+
+[changelog]
+header = """
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+"""
+body = """
+{%- if version %}
+### [{{ version | trim_start_matches(pat="v") }}]\
+({{ remote.url }}/compare/{{ previous.version }}...{{ version }}) \
+({{ timestamp | date(format="%Y-%m-%d") }})
+{%- else %}
+### Unreleased
+{%- endif %}
+{% for group, commits in commits | group_by(attribute="group") %}
+### {{ group }}
+
+{% for commit in commits -%}
+* {{ commit.message }} \
+([{{ commit.id | truncate(length=7, end="") }}]\
+({{ remote.url }}/commit/{{ commit.id }}))
+{% endfor %}
+{%- endfor %}
+"""
+footer = ""
+trim = true
+
+[git]
+conventional_commits = true
+filter_unconventional = true
+filter_commits = false
+tag_pattern = "v[0-9].*"
+sort_commits = "oldest"
+commit_parsers = [
+  { message = "^feat", group = "Features" },
+  { message = "^fix", group = "Bug Fixes" },
+  { message = "^perf", group = "Performance Improvements" },
+  { message = "^revert", group = "Reverts" },
+  { footer = "^breaking[ -]change", group = "BREAKING CHANGES" },
+  { message = "^doc", skip = true },
+  { message = "^style", skip = true },
+  { message = "^refactor", skip = true },
+  { message = "^test", skip = true },
+  { message = "^chore", skip = true },
+  { message = "^ci", skip = true },
+  { message = "^build", skip = true },
+]
+
+[remote.github]
+owner = "tirithen"
+repo = "clipper2c-sys"
