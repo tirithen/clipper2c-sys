@@ -78,18 +78,24 @@ void clipper_svgwriter_clear(ClipperSvgWriter *w) { from_c(w)->Clear(); }
 // SvgReader
 
 ClipperSvgReader *clipper_svgreader(void *mem) {
-  return to_c(new (mem) SvgReader());
+  return to_c(new (mem) SvgReader(std::string()));
 }
 
 void clipper_svgreader_load_from_file(ClipperSvgReader *r,
                                       const char *filename) {
-  from_c(r)->LoadFromFile(std::string(filename));
+  auto *reader = from_c(r);
+  reader->~SvgReader();
+  new (reader) SvgReader(std::string(filename));
 }
 
-void clipper_svgreader_clear(ClipperSvgReader *r) { from_c(r)->Clear(); }
+void clipper_svgreader_clear(ClipperSvgReader *r) {
+  auto *reader = from_c(r);
+  reader->~SvgReader();
+  new (reader) SvgReader(std::string());
+}
 
 ClipperPathsD *clipper_svgreader_get_pathsd(void *mem, ClipperSvgReader *r) {
-  return to_c(new (mem) PathsD(from_c(r)->GetPaths()));
+  return to_c(new (mem) PathsD(from_c(r)->paths));
 }
 
 #ifdef __cplusplus
