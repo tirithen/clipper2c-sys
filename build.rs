@@ -40,6 +40,9 @@ fn main() {
         }
         ("macos", _) | ("ios", _) => println!("cargo:rustc-link-lib=dylib=c++"),
         ("windows", "msvc") => {}
+        // For wasm32-unknown-unknown the C++ stdlib is compiled into the .a
+        // archive by the WASI SDK toolchain, so no separate link step is needed.
+        ("unknown", _) => {}
         _ => unimplemented!(
             "target_os: {}, target_env: {}",
             target_os.as_str(),
