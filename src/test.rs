@@ -637,6 +637,127 @@ fn test_svgreader_memory() {
     }
 }
 
+fn write_svg_fixture(filename: &str, path_data: &str) -> std::path::PathBuf {
+    use std::io::Write;
+    let directory = std::path::Path::new(".tmp");
+    std::fs::create_dir_all(directory).unwrap();
+    let file_path = directory.join(filename);
+    let mut file = std::fs::File::create(&file_path).unwrap();
+    write!(
+        file,
+        r#"<?xml version="1.0"?><svg xmlns="http://www.w3.org/2000/svg"><path d="{}"/></svg>"#,
+        path_data,
+    )
+    .unwrap();
+    file_path
+}
+
+#[test]
+fn test_svgreader_load_from_file_round_trip() {
+    let fixture = write_svg_fixture(
+        "svgreader_round_trip.svg",
+        "M0 0L10 0L10 10L0 10Z",
+    );
+    let filename = std::ffi::CString::new(fixture.to_str().unwrap()).unwrap();
+
+    unsafe {
+        let reader_mem = alloc(clipper_svgreader_size());
+        let reader = clipper_svgreader(reader_mem);
+        clipper_svgreader_load_from_file(reader, filename.as_ptr());
+
+        let paths_mem = alloc(clipper_pathsd_size());
+        let paths = clipper_svgreader_get_pathsd(paths_mem, reader);
+        assert_eq!(clipper_pathsd_length(paths), 1);
+
+        let path_mem = alloc(clipper_pathd_size());
+        let path = clipper_pathsd_get_path(path_mem, paths, 0);
+        assert_eq!(clipper_pathd_length(path), 4);
+        let first_point = clipper_pathd_get_point(path, 0);
+        assert!((first_point.x - 0.0).abs() < 1e-6);
+        assert!((first_point.y - 0.0).abs() < 1e-6);
+
+        clipper_delete_pathd(path);
+        clipper_delete_pathsd(paths);
+        clipper_svgreader_clear(reader);
+        clipper_delete_svgreader(reader);
+    }
+}
+
+#[test]
+fn test_svgreader_repeated_load_replaces_state() {
+    let fixture_a = write_svg_fixture(
+        "svgreader_repeated_a.svg",
+        "M0 0L10 0L5 10Z",
+    );
+    let fixture_b = write_svg_fixture(
+        "svgreader_repeated_b.svg",
+        "M50 50L60 50L60 60L50 60Z",
+    );
+    let filename_a = std::ffi::CString::new(fixture_a.to_str().unwrap()).unwrap();
+    let filename_b = std::ffi::CString::new(fixture_b.to_str().unwrap()).unwrap();
+
+    unsafe {
+        let reader_mem = alloc(clipper_svgreader_size());
+        let reader = clipper_svgreader(reader_mem);
+
+        clipper_svgreader_load_from_file(reader, filename_a.as_ptr());
+        let paths_a_mem = alloc(clipper_pathsd_size());
+        let paths_a = clipper_svgreader_get_pathsd(paths_a_mem, reader);
+        let path_a_mem = alloc(clipper_pathd_size());
+        let path_a = clipper_pathsd_get_path(path_a_mem, paths_a, 0);
+        assert_eq!(clipper_pathd_length(path_a), 3);
+        let first_point_a = clipper_pathd_get_point(path_a, 0);
+        assert!((first_point_a.x - 0.0).abs() < 1e-6);
+        assert!((first_point_a.y - 0.0).abs() < 1e-6);
+        clipper_delete_pathd(path_a);
+        clipper_delete_pathsd(paths_a);
+
+        clipper_svgreader_load_from_file(reader, filename_b.as_ptr());
+        let paths_b_mem = alloc(clipper_pathsd_size());
+        let paths_b = clipper_svgreader_get_pathsd(paths_b_mem, reader);
+        let path_b_mem = alloc(clipper_pathd_size());
+        let path_b = clipper_pathsd_get_path(path_b_mem, paths_b, 0);
+        assert_eq!(clipper_pathd_length(path_b), 4);
+        let first_point_b = clipper_pathd_get_point(path_b, 0);
+        assert!((first_point_b.x - 50.0).abs() < 1e-6);
+        assert!((first_point_b.y - 50.0).abs() < 1e-6);
+        clipper_delete_pathd(path_b);
+        clipper_delete_pathsd(paths_b);
+
+        clipper_svgreader_clear(reader);
+        clipper_delete_svgreader(reader);
+    }
+}
+
+#[test]
+fn test_svgreader_clear_after_load_empties_paths() {
+    let fixture = write_svg_fixture(
+        "svgreader_clear_after_load.svg",
+        "M0 0L10 0L10 10L0 10Z",
+    );
+    let filename = std::ffi::CString::new(fixture.to_str().unwrap()).unwrap();
+
+    unsafe {
+        let reader_mem = alloc(clipper_svgreader_size());
+        let reader = clipper_svgreader(reader_mem);
+        clipper_svgreader_load_from_file(reader, filename.as_ptr());
+
+        let loaded_mem = alloc(clipper_pathsd_size());
+        let loaded = clipper_svgreader_get_pathsd(loaded_mem, reader);
+        assert_eq!(clipper_pathsd_length(loaded), 1);
+        clipper_delete_pathsd(loaded);
+
+        clipper_svgreader_clear(reader);
+
+        let cleared_mem = alloc(clipper_pathsd_size());
+        let cleared = clipper_svgreader_get_pathsd(cleared_mem, reader);
+        assert_eq!(clipper_pathsd_length(cleared), 0);
+        clipper_delete_pathsd(cleared);
+
+        clipper_delete_svgreader(reader);
+    }
+}
+
 #[test]
 fn test_path_simplify_memory() {
     let mut points: Vec<ClipperPoint64> = (0..200)
