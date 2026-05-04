@@ -13,6 +13,17 @@ The create is a Rust wrapper around the C++ version of
 Compile with cargo feature `generate-bindings` to generate bindings at build
 time.
 
+## Versioning
+
+The crate's SemVer tracks the Rust FFI surface. The bundled Clipper2
+version is recorded directly in upstream's [`clipper.version.h`](clipper2c/vendor/Clipper2/CPP/Clipper2Lib/include/clipper2/clipper.version.h)
+— that file is the single source of truth for which Clipper2 release
+this crate is built against.
+
+```toml
+clipper2c-sys = "0.1"
+```
+
 ## Early days
 
 This project is in a super early stage. Expect breaking changes now and then.
