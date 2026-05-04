@@ -34,30 +34,59 @@
 //! `clipper_delete_X` (or destructed and freed via the same allocator).
 //! Mixing with `libc::free` or Rust's allocator is undefined behaviour.
 //!
-//! # Integer (`_64`) vs decimal (`_D`) variants
+//! # `_64` (`i64`) vs `_D` (`f64`) variants
 //!
-//! Every clipping type comes in two flavours, e.g. [`ClipperPath64`] and
-//! [`ClipperPathD`]. The clipping engine itself is **only integer**: all
-//! boolean math runs on `int64_t`. The `_D` variants are a thin scaling
-//! wrapper — they multiply decimal input by a power-of-two scale factor
-//! sized to the chosen `precision` argument, run the integer engine, then
-//! divide back out.
+//! Every clipping type comes in two flavours that look superficially
+//! similar but use **different Rust numeric types**:
 //!
-//! Tradeoffs:
+//! | Suffix | Rust coordinate type | Upstream C++ type | Example |
+//! |--------|----------------------|-------------------|---------|
+//! | `_64`  | `i64` (signed 64-bit integer) | `int64_t`         | [`ClipperPoint64`] (`x: i64, y: i64`) |
+//! | `_D`   | `f64` (64-bit IEEE-754 float) | `double`          | [`ClipperPointD`] (`x: f64, y: f64`)  |
 //!
-//! - **Precision.** `_64` is exact. `_D` quantises to roughly
-//!   `10^-precision` (default `precision = 2`, i.e. ~0.01 units). The
-//!   maximum supported precision is 8 decimal digits.
+//! ## Why both exist
+//!
+//! The clipping engine is implemented **exclusively on `int64_t`**.
+//! Integer arithmetic and comparisons are exact, so the engine's
+//! handling of coincident edges and shared vertices is deterministic.
+//! Floating-point rounding around bit-different-but-mathematically-equal
+//! values would otherwise produce different topology depending on input
+//! order.
+//!
+//! - **`_64` types are the engine's native interface.** Your `i64`
+//!   coordinates pass through unchanged. No transformation, no rounding.
+//! - **`_D` types are a convenience wrapper for `f64` data.** On input,
+//!   each coordinate is multiplied by a scale factor
+//!   `s = 2^⌈log₂(10^precision)⌉` (default `precision = 2` → `s = 128`),
+//!   rounded to `i64`, fed to the engine. Outputs are divided by `s` and
+//!   returned as `f64`. The round-trip quantises results to a grid of
+//!   step `1/s ≈ 10^-precision`.
+//!
+//! ## Which preserves your data
+//!
+//! - **`_64` round-trips bit-exactly** (same `i64` values out as in).
+//! - **`_D` does not** — output values are rounded to the integer grid
+//!   defined by the `precision` setting. The round-trip is *not* the
+//!   identity. This is benign for typical CAD or vector-graphics use,
+//!   but matters if you depend on invariants like "feeding the same
+//!   shape back must give bit-identical coordinates".
+//!
+//! ## Other tradeoffs
+//!
+//! - **Precision floor on `_D`.** Quantisation step is `~10^-precision`
+//!   (default `~0.01`). Max supported `precision` is 8 decimal digits
+//!   (`CLIPPER2_MAX_DEC_PRECISION`).
 //! - **Range.** Integer coordinates must satisfy `|c| ≤ INT64_MAX/4`
-//!   (≈ 2.3 × 10¹⁸). For `_D` the same bound applies *after* scaling, so
-//!   high-magnitude values at high precision can hit a range error.
-//! - **Performance.** `_D` adds per-point multiply-on-input and
-//!   divide-on-output. For large inputs prefer `_64` and pre-scale once
-//!   if your data has a known integer grid.
+//!   (≈ 2.3 × 10¹⁸). For `_D`, the same bound applies *after* scaling,
+//!   so high-magnitude values at high precision can hit a range error
+//!   well before the raw `f64` runs out of bits.
+//! - **Performance.** `_D` adds a multiply on every input coordinate
+//!   and a divide on every output. For hot-path work, prefer `_64` and
+//!   pre-scale once if your data sits on a known integer grid.
 //!
-//! Reach for `_D` for convenience when your geometry is already
-//! floating-point and the quantisation is acceptable. Reach for `_64`
-//! whenever your data fits a regular grid or when precision matters.
+//! Reach for `_D` when your geometry is already `f64` and the
+//! quantisation is acceptable. Reach for `_64` when your data fits an
+//! integer grid or when bit-exact preservation matters.
 //!
 //! # Cargo features
 //!
