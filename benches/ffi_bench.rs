@@ -1,5 +1,6 @@
 use clipper2c_sys::*;
-use criterion::{black_box, criterion_group, criterion_main, Criterion};
+use criterion::{Criterion, criterion_group, criterion_main};
+use std::hint::black_box;
 use std::os::raw::c_void;
 
 unsafe fn alloc(size: usize) -> *mut c_void {
