@@ -23,18 +23,31 @@ extern "C"
   typedef struct ClipperSvgWriter ClipperSvgWriter;
   typedef struct ClipperSvgReader ClipperSvgReader;
 
+  /** Coordinate pair in floating-point (f64) space. The clipping engine
+   *  itself runs on integers; ClipperD multiplies each component by its
+   *  scale factor (default ~128) and rounds to ClipperPoint64 before
+   *  feeding the engine, so |x × scale| and |y × scale| must fit
+   *  ClipperPoint64's range. Outputs are divided back and quantised to
+   *  the scaling grid. */
   typedef struct ClipperPointD
   {
     double x;
     double y;
   } ClipperPointD;
 
+  /** Coordinate pair in the engine's native integer (i64) space. Each
+   *  component must satisfy |c| ≤ INT64_MAX/4 (~2.3 × 10¹⁸); values
+   *  outside this range produce a range error during a clipping
+   *  operation. */
   typedef struct ClipperPoint64
   {
     int64_t x;
     int64_t y;
   } ClipperPoint64;
 
+  /** Axis-aligned bounding rectangle in i64 space. Returned by
+   *  clipper_path64_bounds / clipper_paths64_bounds; consumed by
+   *  clipper_*_rect_clip and clipper_*_rect_clip_line. */
   struct ClipperRect64
   {
     int64_t left;
@@ -43,6 +56,9 @@ extern "C"
     int64_t bottom;
   };
 
+  /** Axis-aligned bounding rectangle in f64 space. The f64 counterpart
+   *  to ClipperRect64 — same role, scaled-coordinate constraint inherits
+   *  from ClipperPointD. */
   struct ClipperRectD
   {
     double left;

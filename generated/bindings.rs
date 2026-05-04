@@ -45,6 +45,7 @@ pub struct ClipperPolyTree64 {
 pub struct ClipperPolyTreeD {
     _unused: [u8; 0],
 }
+#[doc = " Coordinate pair in floating-point (f64) space. The clipping engine\n  itself runs on integers; ClipperD multiplies each component by its\n  scale factor (default ~128) and rounds to ClipperPoint64 before\n  feeding the engine, so |x × scale| and |y × scale| must fit\n  ClipperPoint64's range. Outputs are divided back and quantised to\n  the scaling grid."]
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone, PartialEq)]
 pub struct ClipperPointD {
@@ -58,6 +59,7 @@ const _: () = {
     ["Offset of field: ClipperPointD::x"][::std::mem::offset_of!(ClipperPointD, x) - 0usize];
     ["Offset of field: ClipperPointD::y"][::std::mem::offset_of!(ClipperPointD, y) - 8usize];
 };
+#[doc = " Coordinate pair in the engine's native integer (i64) space. Each\n  component must satisfy |c| ≤ INT64_MAX/4 (~2.3 × 10¹⁸); values\n  outside this range produce a range error during a clipping\n  operation."]
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq)]
 #[cfg_attr(
