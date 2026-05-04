@@ -31,7 +31,7 @@ unsafe extern "C" {
     fn clipper_rectd_width(r: *mut ClipperRectD) -> f64;
     fn clipper_rectd_height(r: *mut ClipperRectD) -> f64;
     fn clipper_rectd_scale(mem: *mut c_void, r: *mut ClipperRectD, scale: f64)
-        -> *mut ClipperRectD;
+    -> *mut ClipperRectD;
     fn clipper_delete_rect64(p: *mut ClipperRect64);
     fn clipper_delete_rectd(p: *mut ClipperRectD);
     fn clipper_svgwriter_size() -> usize;
