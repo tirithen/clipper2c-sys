@@ -55,6 +55,7 @@ fn main() {
         let builder = bindgen::Builder::default()
             .header("clipper2c/include/clipper2c.h")
             .header("clipper2c/include/types.h")
+            .clang_arg("-fparse-all-comments")
             .derive_default(true)
             .derive_partialeq(true)
             .derive_eq(true)

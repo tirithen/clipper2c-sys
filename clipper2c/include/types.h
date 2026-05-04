@@ -51,6 +51,12 @@ extern "C"
     double bottom;
   };
 
+  /** Determines which subregions are 'inside' when paths self-intersect
+   *  or overlap. EVEN_ODD toggles inside/outside on every edge crossing.
+   *  NON_ZERO uses the winding-number sign — the conventional rule for
+   *  polygons-with-holes data where holes wind opposite to their outer
+   *  contour. POSITIVE and NEGATIVE only count windings of the matching
+   *  sign, useful when direction has been baked into the input. */
   typedef enum ClipperFillRule
   {
     EVEN_ODD,
@@ -68,6 +74,9 @@ extern "C"
     XOR
   } ClipperClipType;
 
+  /** Subject paths are the input geometry being clipped. Clip paths are
+   *  the mask. The clipping engine combines the two sets according to
+   *  the chosen ClipperClipType and ClipperFillRule. */
   typedef enum ClipperPathType
   {
     SUBJECT,
@@ -82,6 +91,12 @@ extern "C"
     MITER_JOIN
   } ClipperJoinType;
 
+  /** Open-path endpoint handling for ClipperOffset. POLYGON_END is the
+   *  closed-polygon case — no endpoints to inflate. The other variants
+   *  decide how the start and end of a polyline are extended: BUTT keeps
+   *  the line flat at the original endpoint, SQUARE extends one delta
+   *  past it, ROUND adds a half-circle cap, JOINED keeps polylines
+   *  connected to neighbouring segments. */
   typedef enum ClipperEndType
   {
     POLYGON_END,
