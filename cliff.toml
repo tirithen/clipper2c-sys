@@ -53,3 +53,11 @@ commit_parsers = [
 [remote.github]
 owner = "tirithen"
 repo = "clipper2c-sys"
+
+[bump]
+# Honour pre-1.0 SemVer (the Rust / Cargo convention): for 0.x.y the
+# 'x' position is the breaking axis, so a BREAKING CHANGE bumps the
+# minor (0.1.6 -> 0.2.0), not the major. A 'feat' on 0.x is treated
+# as a non-breaking addition and bumps the patch.
+breaking_always_bump_major = false
+features_always_bump_minor = false
