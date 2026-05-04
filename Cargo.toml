@@ -8,7 +8,7 @@ license = "MIT OR Apache-2.0"
 readme = "README.md"
 repository = "https://github.com/tirithen/clipper2c-sys"
 documentation = "https://docs.rs/clipper2c-sys/"
-description = "Rust FFI bindings to Clipper2 — polygon clipping, offsetting (inflate/deflate), Minkowski sum, and polyline simplification."
+description = "Rust FFI bindings to Clipper2 — 2D polygon boolean clipping (intersection, union, difference, XOR), offsetting (inflate/deflate), area, and point-in-polygon."
 keywords = ["polygon", "clipping", "offset", "clipper", "clipper2"]
 categories = ["algorithms", "external-ffi-bindings", "graphics", "science::geo"]
 

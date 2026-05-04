@@ -4,8 +4,7 @@
 [![docs.rs](https://docs.rs/clipper2c-sys/badge.svg)](https://docs.rs/clipper2c-sys)
 
 Rust FFI bindings to [Clipper2](https://github.com/AngusJohnson/Clipper2),
-Angus Johnson's C++ library for 2D polygon clipping, offsetting,
-Minkowski sums, and polyline simplification.
+Angus Johnson's C++ library for 2D polygon clipping and offsetting.
 
 > **Looking for a safe, idiomatic API?** Use the higher-level
 > [`clipper2`](https://crates.io/crates/clipper2) crate. This `-sys` crate
@@ -22,14 +21,21 @@ been substantially rewritten — most notably for zero-copy.
 
 ## What's exposed
 
-- Boolean operations on polygons: intersection, union, difference, XOR
+- Polygon boolean operations — intersection, union, difference, XOR — via the `Clipper64` / `ClipperD` engine and `ClipperClipType`
 - Polygon offsetting / inflation / deflation, with square, bevel, round, or miter joins and butt, square, round, or joined ends
-- Minkowski sum and difference
-- Rectangular clipping for paths and polylines
-- Polyline simplification: Ramer–Douglas–Peucker, near-equal stripping, collinear trimming
-- Point-in-polygon, polygon area, axis-aligned bounds
+- Path simplification (`clipper_*_simplify`)
+- Point-in-polygon test
+- Polygon area
 - Hierarchical (PolyTree) results that preserve solid/hole nesting
 - Integer (`_64`, `i64`) and floating-point (`_D`, `f64`) coordinate variants — see the [crate-level docs](https://docs.rs/clipper2c-sys) for the precision/range tradeoff
+
+The Rust bindings cover the subset of Clipper2's C ABI that the
+higher-level [`clipper2`](https://crates.io/crates/clipper2) crate
+consumes. Other Clipper2 capabilities — Minkowski sum/difference,
+rectangular clipping, the named simplification variants (RDP,
+near-equal stripping, collinear trimming), bounds, and SVG I/O — exist
+in the vendored C source but are not currently allowlisted in the Rust
+bindings.
 
 ## Typical use cases
 
@@ -55,13 +61,18 @@ clipper2c-sys = "0.1"
 
 The crate compiles the vendored Clipper2 C++ source through
 [`cc`](https://crates.io/crates/cc) and therefore needs a working
-**C++17** toolchain on the build host:
+**C++17** toolchain on the build host. CI builds and runs the test
+suite against the default toolchains shipped with each
+GitHub-hosted runner:
 
-| Platform | Toolchain |
-|----------|-----------|
-| Linux    | `g++ ≥ 7` or `clang++ ≥ 5` (most distros' default) |
-| macOS    | Xcode Command Line Tools (`xcode-select --install`) |
-| Windows  | MSVC build tools (Visual Studio Build Tools 2019+) or MSYS2 with `g++` |
+| Runner         | Default C++ toolchain          |
+|----------------|--------------------------------|
+| ubuntu-latest  | system `g++` / `clang++`       |
+| macos-latest   | Xcode-shipped `clang++`        |
+| windows-latest | MSVC (Visual Studio Build Tools) |
+
+`cc` auto-detects whichever of these is available. Older C++17-capable
+toolchains are likely to work but are not regularly tested.
 
 Minimum Rust: **1.85** (edition 2024).
 
