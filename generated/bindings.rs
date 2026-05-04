@@ -79,6 +79,7 @@ pub const ClipperFillRule_EVEN_ODD: ClipperFillRule = 0;
 pub const ClipperFillRule_NON_ZERO: ClipperFillRule = 1;
 pub const ClipperFillRule_POSITIVE: ClipperFillRule = 2;
 pub const ClipperFillRule_NEGATIVE: ClipperFillRule = 3;
+#[doc = " Determines which subregions are 'inside' when paths self-intersect\n  or overlap. EVEN_ODD toggles inside/outside on every edge crossing.\n  NON_ZERO uses the winding-number sign — the conventional rule for\n  polygons-with-holes data where holes wind opposite to their outer\n  contour. POSITIVE and NEGATIVE only count windings of the matching\n  sign, useful when direction has been baked into the input."]
 pub type ClipperFillRule = ::std::os::raw::c_uint;
 pub const ClipperClipType_NONE: ClipperClipType = 0;
 pub const ClipperClipType_INTERSECTION: ClipperClipType = 1;
@@ -88,6 +89,7 @@ pub const ClipperClipType_XOR: ClipperClipType = 4;
 pub type ClipperClipType = ::std::os::raw::c_uint;
 pub const ClipperPathType_SUBJECT: ClipperPathType = 0;
 pub const ClipperPathType_CLIP: ClipperPathType = 1;
+#[doc = " Subject paths are the input geometry being clipped. Clip paths are\n  the mask. The clipping engine combines the two sets according to\n  the chosen ClipperClipType and ClipperFillRule."]
 pub type ClipperPathType = ::std::os::raw::c_uint;
 pub const ClipperJoinType_SQUARE_JOIN: ClipperJoinType = 0;
 pub const ClipperJoinType_BEVEL_JOIN: ClipperJoinType = 1;
@@ -99,12 +101,14 @@ pub const ClipperEndType_JOINED_END: ClipperEndType = 1;
 pub const ClipperEndType_BUTT_END: ClipperEndType = 2;
 pub const ClipperEndType_SQUARE_END: ClipperEndType = 3;
 pub const ClipperEndType_ROUND_END: ClipperEndType = 4;
+#[doc = " Open-path endpoint handling for ClipperOffset. POLYGON_END is the\n  closed-polygon case — no endpoints to inflate. The other variants\n  decide how the start and end of a polyline are extended: BUTT keeps\n  the line flat at the original endpoint, SQUARE extends one delta\n  past it, ROUND adds a half-circle cap, JOINED keeps polylines\n  connected to neighbouring segments."]
 pub type ClipperEndType = ::std::os::raw::c_uint;
 pub const ClipperPointInPolygonResult_IS_ON: ClipperPointInPolygonResult = 0;
 pub const ClipperPointInPolygonResult_IS_INSIDE: ClipperPointInPolygonResult = 1;
 pub const ClipperPointInPolygonResult_IS_OUTSIDE: ClipperPointInPolygonResult = 2;
 pub type ClipperPointInPolygonResult = ::std::os::raw::c_uint;
 unsafe extern "C" {
+    #[doc = " Path Offsetting"]
     pub fn clipper_paths64_inflate(
         mem: *mut ::std::os::raw::c_void,
         paths: *mut ClipperPaths64,
@@ -126,6 +130,7 @@ unsafe extern "C" {
     ) -> *mut ClipperPathsD;
 }
 unsafe extern "C" {
+    #[doc = " Path Constructors"]
     pub fn clipper_path64(mem: *mut ::std::os::raw::c_void) -> *mut ClipperPath64;
 }
 unsafe extern "C" {
@@ -184,6 +189,7 @@ unsafe extern "C" {
     pub fn clipper_pathsd_add_paths(a: *mut ClipperPathsD, b: *mut ClipperPathsD);
 }
 unsafe extern "C" {
+    #[doc = " Path Conversions (to C)"]
     pub fn clipper_path64_length(path: *mut ClipperPath64) -> usize;
 }
 unsafe extern "C" {
@@ -280,6 +286,7 @@ unsafe extern "C" {
     ) -> *mut ClipperPathsD;
 }
 unsafe extern "C" {
+    #[doc = " Path Conversions"]
     pub fn clipper_path64_to_pathd(
         mem: *mut ::std::os::raw::c_void,
         path: *mut ClipperPath64,
@@ -328,6 +335,7 @@ unsafe extern "C" {
     ) -> ClipperPointInPolygonResult;
 }
 unsafe extern "C" {
+    #[doc = " PolyTree Constructors"]
     pub fn clipper_polytree64(
         mem: *mut ::std::os::raw::c_void,
         parent: *mut ClipperPolyTree64,
@@ -340,6 +348,7 @@ unsafe extern "C" {
     ) -> *mut ClipperPolyTreeD;
 }
 unsafe extern "C" {
+    #[doc = " PolyTree64 Methods"]
     pub fn clipper_polytree64_parent(pt: *mut ClipperPolyTree64) -> *const ClipperPolyTree64;
 }
 unsafe extern "C" {
@@ -376,6 +385,7 @@ unsafe extern "C" {
     ) -> *mut ClipperPaths64;
 }
 unsafe extern "C" {
+    #[doc = " PolyTreeD Methods"]
     pub fn clipper_polytreed_parent(pt: *mut ClipperPolyTreeD) -> *const ClipperPolyTreeD;
 }
 unsafe extern "C" {
@@ -418,6 +428,7 @@ unsafe extern "C" {
     ) -> *mut ClipperPathsD;
 }
 unsafe extern "C" {
+    #[doc = " Clipper Contsructors"]
     pub fn clipper_clipper64(mem: *mut ::std::os::raw::c_void) -> *mut ClipperClipper64;
 }
 unsafe extern "C" {
@@ -427,6 +438,7 @@ unsafe extern "C" {
     ) -> *mut ClipperClipperD;
 }
 unsafe extern "C" {
+    #[doc = " Clipper64 Setters / Getters"]
     pub fn clipper_clipper64_set_preserve_collinear(
         c: *mut ClipperClipper64,
         t: ::std::os::raw::c_int,
@@ -452,6 +464,7 @@ unsafe extern "C" {
     pub fn clipper_clipper64_clear(c: *mut ClipperClipper64);
 }
 unsafe extern "C" {
+    #[doc = " ClipperD Setters / Getters\n"]
     pub fn clipper_clipperd_set_preserve_collinear(
         c: *mut ClipperClipperD,
         t: ::std::os::raw::c_int,
@@ -472,6 +485,7 @@ unsafe extern "C" {
     pub fn clipper_clipperd_clear(c: *mut ClipperClipperD);
 }
 unsafe extern "C" {
+    #[doc = " Clipper64 Methods"]
     pub fn clipper_clipper64_add_subject(c: *mut ClipperClipper64, subjects: *mut ClipperPaths64);
 }
 unsafe extern "C" {
@@ -502,6 +516,7 @@ unsafe extern "C" {
     ) -> ::std::os::raw::c_int;
 }
 unsafe extern "C" {
+    #[doc = " ClipperD Methods"]
     pub fn clipper_clipperd_add_subject(c: *mut ClipperClipperD, subjects: *mut ClipperPathsD);
 }
 unsafe extern "C" {
@@ -532,6 +547,7 @@ unsafe extern "C" {
     ) -> ::std::os::raw::c_int;
 }
 unsafe extern "C" {
+    #[doc = " ClipperOffset Constructors"]
     pub fn clipper_clipperoffset(
         mem: *mut ::std::os::raw::c_void,
         miter_limit: f64,
@@ -541,6 +557,7 @@ unsafe extern "C" {
     ) -> *mut ClipperClipperOffset;
 }
 unsafe extern "C" {
+    #[doc = " ClipperOffset Setters / Getters"]
     pub fn clipper_clipperoffset_set_miter_limit(c: *mut ClipperClipperOffset, l: f64);
 }
 unsafe extern "C" {
@@ -581,6 +598,7 @@ unsafe extern "C" {
     pub fn clipper_clipperoffset_clear(c: *mut ClipperClipperOffset);
 }
 unsafe extern "C" {
+    #[doc = " ClipperOffset Methods"]
     pub fn clipper_clipperoffset_add_path64(
         c: *mut ClipperClipperOffset,
         p: *mut ClipperPath64,
@@ -604,6 +622,7 @@ unsafe extern "C" {
     ) -> *mut ClipperPaths64;
 }
 unsafe extern "C" {
+    #[doc = " memory size"]
     pub fn clipper_path64_size() -> usize;
 }
 unsafe extern "C" {
@@ -631,6 +650,7 @@ unsafe extern "C" {
     pub fn clipper_clipperoffset_size() -> usize;
 }
 unsafe extern "C" {
+    #[doc = " pointer free + destruction"]
     pub fn clipper_allocate(size: usize) -> *mut ::std::os::raw::c_void;
 }
 unsafe extern "C" {
