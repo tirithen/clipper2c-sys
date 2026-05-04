@@ -409,8 +409,7 @@ void clipper_clipper64_add_clip(ClipperClipper64 *c, ClipperPaths64 *clips);
  * land in `open`. Returns 1 on success, 0 on failure.
  *
  * For hierarchical (PolyTree) output preserving solid/hole nesting,
- * see clipper_clipper64_execute_tree (closed only) or
- * clipper_clipper64_execute_tree_with_open (closed + open).
+ * see clipper_clipper64_execute_tree_with_open.
  */
 int clipper_clipper64_execute(ClipperClipper64 *c64, ClipperClipType ct,
                               ClipperFillRule fr, ClipperPaths64 *closed,
@@ -424,9 +423,12 @@ int clipper_clipper64_execute(ClipperClipper64 *c64, ClipperClipType ct,
 int clipper_clipper64_execute_tree(ClipperClipper64 *c64, ClipperClipType ct,
                                    ClipperFillRule fr, ClipperPolyTree64 *tree);
 /**
- * Like clipper_clipper64_execute_tree, but additionally writes
- * open-path output (from clipper_clipper64_add_open_subject) into the
- * separate ClipperPaths64 `open`.
+ * Run the configured boolean operation, writing closed-path output as
+ * a hierarchical ClipperPolyTree64 and open-path output (from
+ * clipper_clipper64_add_open_subject) into the separate ClipperPaths64
+ * `open`. Use this when you need to know which contours are holes
+ * inside which solids — that nesting is lost in the flat output of
+ * clipper_clipper64_execute.
  */
 int clipper_clipper64_execute_tree_with_open(ClipperClipper64 *c64,
                                              ClipperClipType ct,

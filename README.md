@@ -22,7 +22,7 @@ been substantially rewritten — most notably for zero-copy.
 ## What's exposed
 
 - Polygon boolean operations — intersection, union, difference, XOR — via the `Clipper64` / `ClipperD` engine and `ClipperClipType`
-- Polygon offsetting / inflation / deflation, with square, bevel, round, or miter joins and butt, square, round, or joined ends
+- Polygon offsetting / inflation / deflation via `ClipperClipperOffset`, with corner and endpoint styles configurable through the `ClipperJoinType` and `ClipperEndType` enums (square / bevel / round / miter joins; polygon / joined / butt / square / round ends)
 - Path simplification (`clipper_*_simplify`)
 - Point-in-polygon test
 - Polygon area

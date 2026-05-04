@@ -502,7 +502,7 @@ unsafe extern "C" {
     pub fn clipper_clipper64_add_clip(c: *mut ClipperClipper64, clips: *mut ClipperPaths64);
 }
 unsafe extern "C" {
-    #[doc = " Run the configured boolean operation. Closed-path output is written\n to `closed`; if open-path subjects were added via\n clipper_clipper64_add_open_subject, their offset/intersected portions\n land in `open`. Returns 1 on success, 0 on failure.\n\n For hierarchical (PolyTree) output preserving solid/hole nesting,\n see clipper_clipper64_execute_tree (closed only) or\n clipper_clipper64_execute_tree_with_open (closed + open)."]
+    #[doc = " Run the configured boolean operation. Closed-path output is written\n to `closed`; if open-path subjects were added via\n clipper_clipper64_add_open_subject, their offset/intersected portions\n land in `open`. Returns 1 on success, 0 on failure.\n\n For hierarchical (PolyTree) output preserving solid/hole nesting,\n see clipper_clipper64_execute_tree_with_open."]
     pub fn clipper_clipper64_execute(
         c64: *mut ClipperClipper64,
         ct: ClipperClipType,
@@ -512,7 +512,7 @@ unsafe extern "C" {
     ) -> ::std::os::raw::c_int;
 }
 unsafe extern "C" {
-    #[doc = " Like clipper_clipper64_execute_tree, but additionally writes\n open-path output (from clipper_clipper64_add_open_subject) into the\n separate ClipperPaths64 `open`."]
+    #[doc = " Run the configured boolean operation, writing closed-path output as\n a hierarchical ClipperPolyTree64 and open-path output (from\n clipper_clipper64_add_open_subject) into the separate ClipperPaths64\n `open`. Use this when you need to know which contours are holes\n inside which solids — that nesting is lost in the flat output of\n clipper_clipper64_execute."]
     pub fn clipper_clipper64_execute_tree_with_open(
         c64: *mut ClipperClipper64,
         ct: ClipperClipType,
