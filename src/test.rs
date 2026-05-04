@@ -1166,6 +1166,56 @@ fn test_clipper64_union_via_clipper() {
 }
 
 #[test]
+fn test_clipper64_xor_via_clipper() {
+    let mut left = vec![
+        ClipperPoint64 { x: 0, y: 0 },
+        ClipperPoint64 { x: 10, y: 0 },
+        ClipperPoint64 { x: 10, y: 10 },
+        ClipperPoint64 { x: 0, y: 10 },
+    ];
+    let mut right = vec![
+        ClipperPoint64 { x: 5, y: 5 },
+        ClipperPoint64 { x: 15, y: 5 },
+        ClipperPoint64 { x: 15, y: 15 },
+        ClipperPoint64 { x: 5, y: 15 },
+    ];
+
+    let result_area = unsafe {
+        let s = make_path64(&mut left);
+        let ss = make_paths64(&mut [s]);
+        let c = make_path64(&mut right);
+        let cs = make_paths64(&mut [c]);
+
+        let clipper_mem = alloc(clipper_clipper64_size());
+        let clipper_ptr = clipper_clipper64(clipper_mem);
+        clipper_clipper64_add_subject(clipper_ptr, ss);
+        clipper_clipper64_add_clip(clipper_ptr, cs);
+
+        clipper_delete_path64(s);
+        clipper_delete_paths64(ss);
+        clipper_delete_path64(c);
+        clipper_delete_paths64(cs);
+
+        let closed = make_paths64(&mut []);
+        let open = make_paths64(&mut []);
+        clipper_clipper64_execute(
+            clipper_ptr,
+            ClipperClipType_XOR,
+            ClipperFillRule_EVEN_ODD,
+            closed,
+            open,
+        );
+        let area = clipper_paths64_area(closed);
+        clipper_delete_paths64(closed);
+        clipper_delete_paths64(open);
+        clipper_delete_clipper64(clipper_ptr);
+        area
+    };
+    // Two 10x10 squares overlap in a 5x5 region. XOR area = 100 + 100 - 2*25 = 150.
+    assert_eq!(result_area, 150.0);
+}
+
+#[test]
 fn test_clipperoffset_inflate() {
     let mut square = vec![
         ClipperPoint64 { x: 0, y: 0 },
