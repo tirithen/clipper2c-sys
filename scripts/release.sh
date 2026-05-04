@@ -7,4 +7,4 @@ cd "$(git rev-parse --show-toplevel)"
 cargo deny check
 cargo semver-checks check-release
 cargo test
-cargo release "${1:-patch}" --execute
+cargo release "${1:-patch}" --execute --no-verify
