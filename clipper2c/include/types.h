@@ -24,11 +24,11 @@ extern "C"
   typedef struct ClipperSvgReader ClipperSvgReader;
 
   /** Coordinate pair in floating-point (f64) space. The clipping engine
-   *  itself runs on integers; ClipperD multiplies each component by its
-   *  scale factor (default ~128) and rounds to ClipperPoint64 before
-   *  feeding the engine, so |x × scale| and |y × scale| must fit
-   *  ClipperPoint64's range. Outputs are divided back and quantised to
-   *  the scaling grid. */
+   *  itself runs on integers; ClipperClipperD multiplies each component
+   *  by its scale factor (s = 128 at the default precision = 2) and
+   *  rounds to ClipperPoint64 before feeding the engine, so |x × s| and
+   *  |y × s| must fit ClipperPoint64's range. Outputs are divided back
+   *  and quantised to the scaling grid. */
   typedef struct ClipperPointD
   {
     double x;
@@ -81,6 +81,10 @@ extern "C"
     NEGATIVE
   } ClipperFillRule;
 
+  /** Boolean operation kind. NONE is the sentinel default for an
+   *  unconfigured engine — passing it to clipper_*_execute is undefined.
+   *  Use INTERSECTION / UNION / DIFFERENCE / XOR for the standard four
+   *  set operations. */
   typedef enum ClipperClipType
   {
     NONE,
@@ -99,6 +103,11 @@ extern "C"
     CLIP
   } ClipperPathType;
 
+  /** Corner-handling style for ClipperOffset; same shapes as SVG and
+   *  Cairo stroke joins. SQUARE squares off perpendicular to the
+   *  corner. BEVEL flattens the corner with a straight cut. ROUND
+   *  replaces it with a circular arc. MITER extends the offset edges
+   *  to their intersection, clipped at the configured miter limit. */
   typedef enum ClipperJoinType
   {
     SQUARE_JOIN,
@@ -109,10 +118,10 @@ extern "C"
 
   /** Open-path endpoint handling for ClipperOffset. POLYGON_END is the
    *  closed-polygon case — no endpoints to inflate. The other variants
-   *  decide how the start and end of a polyline are extended: BUTT keeps
-   *  the line flat at the original endpoint, SQUARE extends one delta
-   *  past it, ROUND adds a half-circle cap, JOINED keeps polylines
-   *  connected to neighbouring segments. */
+   *  decide how the start and end of a polyline are extended (listed in
+   *  enum order): JOINED keeps polylines connected to neighbouring
+   *  segments, BUTT keeps the line flat at the original endpoint,
+   *  SQUARE extends one delta past it, ROUND adds a half-circle cap. */
   typedef enum ClipperEndType
   {
     POLYGON_END,
