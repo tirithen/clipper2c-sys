@@ -45,7 +45,7 @@ pub struct ClipperPolyTree64 {
 pub struct ClipperPolyTreeD {
     _unused: [u8; 0],
 }
-#[doc = " Coordinate pair in floating-point (f64) space. The clipping engine\n  itself runs on integers; ClipperD multiplies each component by its\n  scale factor (default ~128) and rounds to ClipperPoint64 before\n  feeding the engine, so |x × scale| and |y × scale| must fit\n  ClipperPoint64's range. Outputs are divided back and quantised to\n  the scaling grid."]
+#[doc = " Coordinate pair in floating-point (f64) space. The clipping engine\n  itself runs on integers; ClipperClipperD multiplies each component\n  by its scale factor (s = 128 at the default precision = 2) and\n  rounds to ClipperPoint64 before feeding the engine, so |x × s| and\n  |y × s| must fit ClipperPoint64's range. Outputs are divided back\n  and quantised to the scaling grid."]
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone, PartialEq)]
 pub struct ClipperPointD {
@@ -88,6 +88,7 @@ pub const ClipperClipType_INTERSECTION: ClipperClipType = 1;
 pub const ClipperClipType_UNION: ClipperClipType = 2;
 pub const ClipperClipType_DIFFERENCE: ClipperClipType = 3;
 pub const ClipperClipType_XOR: ClipperClipType = 4;
+#[doc = " Boolean operation kind. NONE is the sentinel default for an\n  unconfigured engine — passing it to clipper_*_execute is undefined.\n  Use INTERSECTION / UNION / DIFFERENCE / XOR for the standard four\n  set operations."]
 pub type ClipperClipType = ::std::os::raw::c_uint;
 pub const ClipperPathType_SUBJECT: ClipperPathType = 0;
 pub const ClipperPathType_CLIP: ClipperPathType = 1;
@@ -97,13 +98,14 @@ pub const ClipperJoinType_SQUARE_JOIN: ClipperJoinType = 0;
 pub const ClipperJoinType_BEVEL_JOIN: ClipperJoinType = 1;
 pub const ClipperJoinType_ROUND_JOIN: ClipperJoinType = 2;
 pub const ClipperJoinType_MITER_JOIN: ClipperJoinType = 3;
+#[doc = " Corner-handling style for ClipperOffset; same shapes as SVG and\n  Cairo stroke joins. SQUARE squares off perpendicular to the\n  corner. BEVEL flattens the corner with a straight cut. ROUND\n  replaces it with a circular arc. MITER extends the offset edges\n  to their intersection, clipped at the configured miter limit."]
 pub type ClipperJoinType = ::std::os::raw::c_uint;
 pub const ClipperEndType_POLYGON_END: ClipperEndType = 0;
 pub const ClipperEndType_JOINED_END: ClipperEndType = 1;
 pub const ClipperEndType_BUTT_END: ClipperEndType = 2;
 pub const ClipperEndType_SQUARE_END: ClipperEndType = 3;
 pub const ClipperEndType_ROUND_END: ClipperEndType = 4;
-#[doc = " Open-path endpoint handling for ClipperOffset. POLYGON_END is the\n  closed-polygon case — no endpoints to inflate. The other variants\n  decide how the start and end of a polyline are extended: BUTT keeps\n  the line flat at the original endpoint, SQUARE extends one delta\n  past it, ROUND adds a half-circle cap, JOINED keeps polylines\n  connected to neighbouring segments."]
+#[doc = " Open-path endpoint handling for ClipperOffset. POLYGON_END is the\n  closed-polygon case — no endpoints to inflate. The other variants\n  decide how the start and end of a polyline are extended (listed in\n  enum order): JOINED keeps polylines connected to neighbouring\n  segments, BUTT keeps the line flat at the original endpoint,\n  SQUARE extends one delta past it, ROUND adds a half-circle cap."]
 pub type ClipperEndType = ::std::os::raw::c_uint;
 pub const ClipperPointInPolygonResult_IS_ON: ClipperPointInPolygonResult = 0;
 pub const ClipperPointInPolygonResult_IS_INSIDE: ClipperPointInPolygonResult = 1;
@@ -500,6 +502,7 @@ unsafe extern "C" {
     pub fn clipper_clipper64_add_clip(c: *mut ClipperClipper64, clips: *mut ClipperPaths64);
 }
 unsafe extern "C" {
+    #[doc = " Run the configured boolean operation. Closed-path output is written\n to `closed`; if open-path subjects were added via\n clipper_clipper64_add_open_subject, their offset/intersected portions\n land in `open`. Returns 1 on success, 0 on failure.\n\n For hierarchical (PolyTree) output preserving solid/hole nesting,\n see clipper_clipper64_execute_tree (closed only) or\n clipper_clipper64_execute_tree_with_open (closed + open)."]
     pub fn clipper_clipper64_execute(
         c64: *mut ClipperClipper64,
         ct: ClipperClipType,
@@ -509,6 +512,7 @@ unsafe extern "C" {
     ) -> ::std::os::raw::c_int;
 }
 unsafe extern "C" {
+    #[doc = " Like clipper_clipper64_execute_tree, but additionally writes\n open-path output (from clipper_clipper64_add_open_subject) into the\n separate ClipperPaths64 `open`."]
     pub fn clipper_clipper64_execute_tree_with_open(
         c64: *mut ClipperClipper64,
         ct: ClipperClipType,
@@ -531,6 +535,7 @@ unsafe extern "C" {
     pub fn clipper_clipperd_add_clip(c: *mut ClipperClipperD, clips: *mut ClipperPathsD);
 }
 unsafe extern "C" {
+    #[doc = " Decimal-coordinate version of clipper_clipper64_execute."]
     pub fn clipper_clipperd_execute(
         cD: *mut ClipperClipperD,
         ct: ClipperClipType,
@@ -540,6 +545,7 @@ unsafe extern "C" {
     ) -> ::std::os::raw::c_int;
 }
 unsafe extern "C" {
+    #[doc = " Decimal-coordinate version of clipper_clipper64_execute_tree_with_open."]
     pub fn clipper_clipperd_execute_tree_with_open(
         cD: *mut ClipperClipperD,
         ct: ClipperClipType,
@@ -624,7 +630,7 @@ unsafe extern "C" {
     ) -> *mut ClipperPaths64;
 }
 unsafe extern "C" {
-    #[doc = " memory size"]
+    #[doc = " Bytes required for placement-new construction of a ClipperPath64.\n\n The full clipper_X_size() family follows this pattern: allocate this\n many bytes via clipper_allocate, hand the buffer to a constructor\n like clipper_path64(mem) (which placement-news the C++ object — no\n extra allocation), use the resulting handle, free with the matching\n clipper_delete_path64. See the crate-level \"Memory model\" section\n for the full lifecycle."]
     pub fn clipper_path64_size() -> usize;
 }
 unsafe extern "C" {
@@ -652,7 +658,7 @@ unsafe extern "C" {
     pub fn clipper_clipperoffset_size() -> usize;
 }
 unsafe extern "C" {
-    #[doc = " pointer free + destruction"]
+    #[doc = " Allocator paired with the clipper_delete_X / clipper_destruct_X\n family. Returns raw bytes that must then be placement-new\n constructed by a clipper_X(mem, ...) call before use.\n\n Memory from clipper_allocate must only be released through:\n   - clipper_delete_X(handle): runs the C++ destructor and frees the\n     allocation; the most common path.\n   - clipper_destruct_X(handle) followed by your own free of the same\n     pointer through this same allocator (advanced).\n\n Mixing with libc free or a different allocator is undefined\n behaviour; the C++ side may use a non-system allocator."]
     pub fn clipper_allocate(size: usize) -> *mut ::std::os::raw::c_void;
 }
 unsafe extern "C" {

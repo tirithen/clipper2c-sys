@@ -8,10 +8,26 @@ extern "C" {
 
 // Boolean Operations
 
+/**
+ * One-shot boolean operation: returns the result of combining the
+ * subject and clip paths according to the given clip type and fill
+ * rule. For PolyTree output that preserves solid/hole nesting, see
+ * clipper_paths64_boolean_op_tree.
+ *
+ * The returned ClipperPaths64 is placement-new constructed into `mem`
+ * (allocate via clipper_allocate(clipper_paths64_size())) and must be
+ * released with clipper_delete_paths64.
+ */
 ClipperPaths64 *clipper_paths64_boolean_op(void *mem, ClipperClipType cliptype,
                                            ClipperFillRule fillrule,
                                            ClipperPaths64 *subjects,
                                            ClipperPaths64 *clips);
+/**
+ * Like clipper_paths64_boolean_op but writes into a caller-provided
+ * ClipperPolyTree64. Use this when you need to know which contours
+ * are holes inside which solids — that nesting is lost in the flat
+ * ClipperPaths64 form. `solution` is populated in place.
+ */
 void clipper_paths64_boolean_op_tree(ClipperClipType cliptype,
                                      ClipperFillRule fillrule,
                                      ClipperPaths64 *subjects,
@@ -29,11 +45,18 @@ ClipperPaths64 *clipper_paths64_difference(void *mem, ClipperPaths64 *subjects,
 ClipperPaths64 *clipper_paths64_xor(void *mem, ClipperPaths64 *subjects,
                                     ClipperPaths64 *clips,
                                     ClipperFillRule fillrule);
+/**
+ * Decimal-coordinate version of clipper_paths64_boolean_op. The extra
+ * `decimal_prec` argument is the precision passed to the underlying
+ * ClipperClipperD; see the crate-level "_64 (i64) vs _D (f64) variants"
+ * documentation for the precision / range / quantisation tradeoffs.
+ */
 ClipperPathsD *clipper_pathsd_boolean_op(void *mem, ClipperClipType cliptype,
                                          ClipperFillRule fillrule,
                                          ClipperPathsD *subjects,
                                          ClipperPathsD *clips,
                                          int decimal_prec);
+/** Decimal-coordinate version of clipper_paths64_boolean_op_tree. */
 void clipper_pathsd_boolean_op_tree(
     ClipperClipType cliptype, ClipperFillRule fillrule, ClipperPathsD *subjects,
     ClipperPathsD *clips, ClipperPolyTreeD *solution, int decimal_prec);
@@ -379,11 +402,32 @@ void clipper_clipper64_add_subject(ClipperClipper64 *c,
 void clipper_clipper64_add_open_subject(ClipperClipper64 *c,
                                         ClipperPaths64 *open_subjects);
 void clipper_clipper64_add_clip(ClipperClipper64 *c, ClipperPaths64 *clips);
+/**
+ * Run the configured boolean operation. Closed-path output is written
+ * to `closed`; if open-path subjects were added via
+ * clipper_clipper64_add_open_subject, their offset/intersected portions
+ * land in `open`. Returns 1 on success, 0 on failure.
+ *
+ * For hierarchical (PolyTree) output preserving solid/hole nesting,
+ * see clipper_clipper64_execute_tree (closed only) or
+ * clipper_clipper64_execute_tree_with_open (closed + open).
+ */
 int clipper_clipper64_execute(ClipperClipper64 *c64, ClipperClipType ct,
                               ClipperFillRule fr, ClipperPaths64 *closed,
                               ClipperPaths64 *open);
+/**
+ * Like clipper_clipper64_execute, but writes closed-path output as a
+ * hierarchical ClipperPolyTree64 instead of a flat ClipperPaths64.
+ * Open-path output is not returned by this variant; use
+ * clipper_clipper64_execute_tree_with_open if you need it.
+ */
 int clipper_clipper64_execute_tree(ClipperClipper64 *c64, ClipperClipType ct,
                                    ClipperFillRule fr, ClipperPolyTree64 *tree);
+/**
+ * Like clipper_clipper64_execute_tree, but additionally writes
+ * open-path output (from clipper_clipper64_add_open_subject) into the
+ * separate ClipperPaths64 `open`.
+ */
 int clipper_clipper64_execute_tree_with_open(ClipperClipper64 *c64,
                                              ClipperClipType ct,
                                              ClipperFillRule fr,
@@ -396,11 +440,16 @@ void clipper_clipperd_add_subject(ClipperClipperD *c, ClipperPathsD *subjects);
 void clipper_clipperd_add_open_subject(ClipperClipperD *c,
                                        ClipperPathsD *open_subjects);
 void clipper_clipperd_add_clip(ClipperClipperD *c, ClipperPathsD *clips);
+/** Decimal-coordinate version of clipper_clipper64_execute. */
 int clipper_clipperd_execute(ClipperClipperD *cD, ClipperClipType ct,
                              ClipperFillRule fr, ClipperPathsD *closed,
                              ClipperPathsD *open);
+/** Decimal-coordinate version of clipper_clipper64_execute_tree. */
 int clipper_clipperd_execute_tree(ClipperClipperD *cD, ClipperClipType ct,
                                   ClipperFillRule fr, ClipperPolyTreeD *tree);
+/**
+ * Decimal-coordinate version of clipper_clipper64_execute_tree_with_open.
+ */
 int clipper_clipperd_execute_tree_with_open(ClipperClipperD *cD,
                                             ClipperClipType ct,
                                             ClipperFillRule fr,
@@ -479,6 +528,16 @@ ClipperPathsD *clipper_svgreader_get_pathsd(void *mem, ClipperSvgReader *r);
 
 // memory size
 
+/**
+ * Bytes required for placement-new construction of a ClipperPath64.
+ *
+ * The full clipper_X_size() family follows this pattern: allocate this
+ * many bytes via clipper_allocate, hand the buffer to a constructor
+ * like clipper_path64(mem) (which placement-news the C++ object — no
+ * extra allocation), use the resulting handle, free with the matching
+ * clipper_delete_path64. See the crate-level "Memory model" section
+ * for the full lifecycle.
+ */
 size_t clipper_path64_size();
 size_t clipper_pathd_size();
 size_t clipper_paths64_size();
@@ -510,6 +569,21 @@ void clipper_destruct_svgwriter(ClipperSvgWriter *p);
 void clipper_destruct_svgreader(ClipperSvgReader *p);
 
 // pointer free + destruction
+
+/**
+ * Allocator paired with the clipper_delete_X / clipper_destruct_X
+ * family. Returns raw bytes that must then be placement-new
+ * constructed by a clipper_X(mem, ...) call before use.
+ *
+ * Memory from clipper_allocate must only be released through:
+ *   - clipper_delete_X(handle): runs the C++ destructor and frees the
+ *     allocation; the most common path.
+ *   - clipper_destruct_X(handle) followed by your own free of the same
+ *     pointer through this same allocator (advanced).
+ *
+ * Mixing with libc free or a different allocator is undefined
+ * behaviour; the C++ side may use a non-system allocator.
+ */
 void* clipper_allocate(size_t size);
 
 void clipper_delete_path64(ClipperPath64 *p);
