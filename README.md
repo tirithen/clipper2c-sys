@@ -7,8 +7,13 @@ Exposing unsafe FFI functions from the Clipper2 library for Rust.
 
 **NOTE:** This crate is primarily intended to be used by the high level crate [clipper2](https://crates.io/crates/clipper2). If you just want to use Clipper2 from Rust that is probably the crate that you should try instead.
 
-The create is a Rust wrapper around the C++ version of
-[Clipper2](https://github.com/AngusJohnson/Clipper2) with the help of the [clipper2c-sys](https://github.com/songhuaixu/clipper2c) C wrapper.
+This crate is a thin Rust FFI wrapper around [Clipper2](https://github.com/AngusJohnson/Clipper2),
+Angus Johnson's polygon clipping and offsetting library — the canonical C++
+implementation. Clipper2 is vendored verbatim into this repository so builds
+stay reproducible without depending on a system install or network access.
+The C ABI bridge started as a fork of [songhuaixu/clipper2c](https://github.com/songhuaixu/clipper2c)
+(Boost Software License 1.0, preserved in `clipper2c/LICENSE`) and has since
+been substantially rewritten — most notably for zero-copy.
 
 Compile with cargo feature `generate-bindings` to generate bindings at build
 time.
