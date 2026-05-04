@@ -3,7 +3,7 @@ use criterion::{black_box, criterion_group, criterion_main, Criterion};
 use std::os::raw::c_void;
 
 unsafe fn alloc(size: usize) -> *mut c_void {
-    clipper_allocate(size)
+    unsafe { clipper_allocate(size) }
 }
 
 fn bench_boolean_difference(c: &mut Criterion) {

@@ -3,7 +3,7 @@ use std::ptr;
 
 use crate::*;
 
-extern "C" {
+unsafe extern "C" {
     fn clipper_rect64_size() -> usize;
     fn clipper_rectd_size() -> usize;
     fn clipper_rect64(
@@ -143,7 +143,7 @@ struct ClipperRectD {
 }
 
 unsafe fn alloc(size: usize) -> *mut c_void {
-    clipper_allocate(size)
+    unsafe { clipper_allocate(size) }
 }
 
 const LEAK_ITERATIONS: usize = 1_000;
@@ -654,10 +654,7 @@ fn write_svg_fixture(filename: &str, path_data: &str) -> std::path::PathBuf {
 
 #[test]
 fn test_svgreader_load_from_file_round_trip() {
-    let fixture = write_svg_fixture(
-        "svgreader_round_trip.svg",
-        "M0 0L10 0L10 10L0 10Z",
-    );
+    let fixture = write_svg_fixture("svgreader_round_trip.svg", "M0 0L10 0L10 10L0 10Z");
     let filename = std::ffi::CString::new(fixture.to_str().unwrap()).unwrap();
 
     unsafe {
@@ -685,14 +682,8 @@ fn test_svgreader_load_from_file_round_trip() {
 
 #[test]
 fn test_svgreader_repeated_load_replaces_state() {
-    let fixture_a = write_svg_fixture(
-        "svgreader_repeated_a.svg",
-        "M0 0L10 0L5 10Z",
-    );
-    let fixture_b = write_svg_fixture(
-        "svgreader_repeated_b.svg",
-        "M50 50L60 50L60 60L50 60Z",
-    );
+    let fixture_a = write_svg_fixture("svgreader_repeated_a.svg", "M0 0L10 0L5 10Z");
+    let fixture_b = write_svg_fixture("svgreader_repeated_b.svg", "M50 50L60 50L60 60L50 60Z");
     let filename_a = std::ffi::CString::new(fixture_a.to_str().unwrap()).unwrap();
     let filename_b = std::ffi::CString::new(fixture_b.to_str().unwrap()).unwrap();
 
@@ -731,10 +722,7 @@ fn test_svgreader_repeated_load_replaces_state() {
 
 #[test]
 fn test_svgreader_clear_after_load_empties_paths() {
-    let fixture = write_svg_fixture(
-        "svgreader_clear_after_load.svg",
-        "M0 0L10 0L10 10L0 10Z",
-    );
+    let fixture = write_svg_fixture("svgreader_clear_after_load.svg", "M0 0L10 0L10 10L0 10Z");
     let filename = std::ffi::CString::new(fixture.to_str().unwrap()).unwrap();
 
     unsafe {
@@ -948,53 +936,65 @@ fn test_inflate_memory() {
 }
 
 unsafe fn make_path64(points: &mut [ClipperPoint64]) -> *mut ClipperPath64 {
-    let mem = alloc(clipper_path64_size());
-    clipper_path64_of_points(mem, points.as_mut_ptr(), points.len())
+    unsafe {
+        let mem = alloc(clipper_path64_size());
+        clipper_path64_of_points(mem, points.as_mut_ptr(), points.len())
+    }
 }
 
 unsafe fn make_paths64(paths: &mut [*mut ClipperPath64]) -> *mut crate::ClipperPaths64 {
-    let mem = alloc(clipper_paths64_size());
-    clipper_paths64_of_paths(mem, paths.as_mut_ptr(), paths.len())
+    unsafe {
+        let mem = alloc(clipper_paths64_size());
+        clipper_paths64_of_paths(mem, paths.as_mut_ptr(), paths.len())
+    }
 }
 
 unsafe fn make_pathd(points: &mut [ClipperPointD]) -> *mut ClipperPathD {
-    let mem = alloc(clipper_pathd_size());
-    clipper_pathd_of_points(mem, points.as_mut_ptr(), points.len())
+    unsafe {
+        let mem = alloc(clipper_pathd_size());
+        clipper_pathd_of_points(mem, points.as_mut_ptr(), points.len())
+    }
 }
 
 unsafe fn make_pathsd(paths: &mut [*mut ClipperPathD]) -> *mut crate::ClipperPathsD {
-    let mem = alloc(clipper_pathsd_size());
-    clipper_pathsd_of_paths(mem, paths.as_mut_ptr(), paths.len())
+    unsafe {
+        let mem = alloc(clipper_pathsd_size());
+        clipper_pathsd_of_paths(mem, paths.as_mut_ptr(), paths.len())
+    }
 }
 
 unsafe fn collect_paths64(paths: *mut crate::ClipperPaths64) -> Vec<Vec<(i64, i64)>> {
-    let path_count: i32 = clipper_paths64_length(paths).try_into().unwrap();
-    (0..path_count)
-        .map(|i| {
-            let point_count: i32 = clipper_paths64_path_length(paths, i).try_into().unwrap();
-            (0..point_count)
-                .map(|j| {
-                    let p = clipper_paths64_get_point(paths, i, j);
-                    (p.x, p.y)
-                })
-                .collect()
-        })
-        .collect()
+    unsafe {
+        let path_count: i32 = clipper_paths64_length(paths).try_into().unwrap();
+        (0..path_count)
+            .map(|i| {
+                let point_count: i32 = clipper_paths64_path_length(paths, i).try_into().unwrap();
+                (0..point_count)
+                    .map(|j| {
+                        let p = clipper_paths64_get_point(paths, i, j);
+                        (p.x, p.y)
+                    })
+                    .collect()
+            })
+            .collect()
+    }
 }
 
 unsafe fn collect_pathsd(paths: *mut crate::ClipperPathsD) -> Vec<Vec<(f64, f64)>> {
-    let path_count: i32 = clipper_pathsd_length(paths).try_into().unwrap();
-    (0..path_count)
-        .map(|i| {
-            let point_count: i32 = clipper_pathsd_path_length(paths, i).try_into().unwrap();
-            (0..point_count)
-                .map(|j| {
-                    let p = clipper_pathsd_get_point(paths, i, j);
-                    (p.x, p.y)
-                })
-                .collect()
-        })
-        .collect()
+    unsafe {
+        let path_count: i32 = clipper_pathsd_length(paths).try_into().unwrap();
+        (0..path_count)
+            .map(|i| {
+                let point_count: i32 = clipper_pathsd_path_length(paths, i).try_into().unwrap();
+                (0..point_count)
+                    .map(|j| {
+                        let p = clipper_pathsd_get_point(paths, i, j);
+                        (p.x, p.y)
+                    })
+                    .collect()
+            })
+            .collect()
+    }
 }
 
 #[test]

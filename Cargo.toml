@@ -2,7 +2,8 @@
 name = "clipper2c-sys"
 version = "0.1.6"
 authors = ["Fredrik Söderström <tirithen@gmail.com>"]
-edition = "2021"
+edition = "2024"
+rust-version = "1.85"
 license = "MIT OR Apache-2.0"
 readme = "README.md"
 repository = "https://github.com/tirithen/clipper2c-sys"
