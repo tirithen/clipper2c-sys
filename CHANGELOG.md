@@ -21,23 +21,6 @@ All notable changes to this project will be documented in this file. Commit mess
 * update vendored Clipper2 to 2.0.1 ([e2f912d](https://github.com/tirithen/clipper2c-sys/commit/e2f912d805f1b52149568379efec4beecfbaa897))
 * expose Minkowski sum/difference via FFI allowlist ([852b90b](https://github.com/tirithen/clipper2c-sys/commit/852b90b380d8c44d1d61e8f8649e1791d440b4d0))
 
-### [0.2.0](https://github.com/tirithen/clipper2c-sys/compare/v0.1.6...v0.2.0) (2026-05-05)
-
-### BREAKING CHANGES
-
-* bump rust edition to 2024 ([c9ba599](https://github.com/tirithen/clipper2c-sys/commit/c9ba599d97c3e918aefcb85661e40f0dfa0044ef))
-
-### Bug Fixes
-
-* handle wasm32-unknown-unknown in build.rs stdlib link step ([5b67a6d](https://github.com/tirithen/clipper2c-sys/commit/5b67a6d0b943eddbd4a6fa2a34b43a924d35fd29))
-* adapt to Clipper2 2.0.1 api changes ([2ac5886](https://github.com/tirithen/clipper2c-sys/commit/2ac58863598137e8012dfcbc8fdccff7745d07a2))
-* rendered URL and BREAKING CHANGES classification ([4dd3fdd](https://github.com/tirithen/clipper2c-sys/commit/4dd3fdd712003ff8c39f339c343f7e978c2c7c8a))
-
-### Features
-
-* update vendored Clipper2 to 2.0.1 ([e2f912d](https://github.com/tirithen/clipper2c-sys/commit/e2f912d805f1b52149568379efec4beecfbaa897))
-* expose Minkowski sum/difference via FFI allowlist ([852b90b](https://github.com/tirithen/clipper2c-sys/commit/852b90b380d8c44d1d61e8f8649e1791d440b4d0))
-
 ### [0.1.6](https://github.com/tirithen/clipper2c-sys/compare/v0.1.5...v0.1.6) (2026-04-13)
 
 This release contains performance improvements that reduces the memory use of the FFI code using references over copying data [6403217](https://github.com/tirithen/clipper2c-sys/commit/64032177d6b0afcd241b5b65f0c41b48a6d532db)
