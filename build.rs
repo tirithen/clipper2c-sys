@@ -202,6 +202,15 @@ fn main() {
             .allowlist_function("clipper_clipperoffset_add_paths64")
             .allowlist_function("clipper_clipperoffset_execute")
             .allowlist_function("clipper_delete_clipperoffset")
+            // Minkowski Methods
+            .allowlist_function("clipper_path64_minkowski_sum")
+            .allowlist_function("clipper_path64_minkowski_diff")
+            .allowlist_function("clipper_pathd_minkowski_sum")
+            .allowlist_function("clipper_pathd_minkowski_diff")
+            .allowlist_function("clipper_paths64_minkowski_sum")
+            .allowlist_function("clipper_paths64_minkowski_diff")
+            .allowlist_function("clipper_pathsd_minkowski_sum")
+            .allowlist_function("clipper_pathsd_minkowski_diff")
             // Memory allocation
             .allowlist_function("clipper_allocate")
             .size_t_is_usize(true);

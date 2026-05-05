@@ -315,6 +315,79 @@ unsafe extern "C" {
     ) -> *mut ClipperPaths64;
 }
 unsafe extern "C" {
+    #[doc = " Minkowski"]
+    pub fn clipper_path64_minkowski_sum(
+        mem: *mut ::std::os::raw::c_void,
+        pattern: *mut ClipperPath64,
+        path: *mut ClipperPath64,
+        is_closed: ::std::os::raw::c_int,
+    ) -> *mut ClipperPaths64;
+}
+unsafe extern "C" {
+    pub fn clipper_pathd_minkowski_sum(
+        mem: *mut ::std::os::raw::c_void,
+        pattern: *mut ClipperPathD,
+        path: *mut ClipperPathD,
+        is_closed: ::std::os::raw::c_int,
+        precision: ::std::os::raw::c_int,
+    ) -> *mut ClipperPathsD;
+}
+unsafe extern "C" {
+    pub fn clipper_path64_minkowski_diff(
+        mem: *mut ::std::os::raw::c_void,
+        pattern: *mut ClipperPath64,
+        path: *mut ClipperPath64,
+        is_closed: ::std::os::raw::c_int,
+    ) -> *mut ClipperPaths64;
+}
+unsafe extern "C" {
+    pub fn clipper_pathd_minkowski_diff(
+        mem: *mut ::std::os::raw::c_void,
+        pattern: *mut ClipperPathD,
+        path: *mut ClipperPathD,
+        is_closed: ::std::os::raw::c_int,
+        precision: ::std::os::raw::c_int,
+    ) -> *mut ClipperPathsD;
+}
+unsafe extern "C" {
+    pub fn clipper_paths64_minkowski_sum(
+        mem: *mut ::std::os::raw::c_void,
+        pattern: *mut ClipperPath64,
+        paths: *mut ClipperPaths64,
+        is_closed: ::std::os::raw::c_int,
+        fillrule: ClipperFillRule,
+    ) -> *mut ClipperPaths64;
+}
+unsafe extern "C" {
+    pub fn clipper_pathsd_minkowski_sum(
+        mem: *mut ::std::os::raw::c_void,
+        pattern: *mut ClipperPathD,
+        paths: *mut ClipperPathsD,
+        is_closed: ::std::os::raw::c_int,
+        precision: ::std::os::raw::c_int,
+        fillrule: ClipperFillRule,
+    ) -> *mut ClipperPathsD;
+}
+unsafe extern "C" {
+    pub fn clipper_paths64_minkowski_diff(
+        mem: *mut ::std::os::raw::c_void,
+        pattern: *mut ClipperPath64,
+        paths: *mut ClipperPaths64,
+        is_closed: ::std::os::raw::c_int,
+        fillrule: ClipperFillRule,
+    ) -> *mut ClipperPaths64;
+}
+unsafe extern "C" {
+    pub fn clipper_pathsd_minkowski_diff(
+        mem: *mut ::std::os::raw::c_void,
+        pattern: *mut ClipperPathD,
+        paths: *mut ClipperPathsD,
+        is_closed: ::std::os::raw::c_int,
+        precision: ::std::os::raw::c_int,
+        fillrule: ClipperFillRule,
+    ) -> *mut ClipperPathsD;
+}
+unsafe extern "C" {
     pub fn clipper_pathd_area(path: *mut ClipperPathD) -> f64;
 }
 unsafe extern "C" {
