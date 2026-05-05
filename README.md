@@ -23,6 +23,7 @@ been substantially rewritten — most notably for zero-copy.
 
 - Polygon boolean operations — intersection, union, difference, XOR — via the `Clipper64` / `ClipperD` engine and `ClipperClipType`
 - Polygon offsetting / inflation / deflation via `ClipperClipperOffset`, with corner and endpoint styles configurable through the `ClipperJoinType` and `ClipperEndType` enums (square / bevel / round / miter joins; polygon / joined / butt / square / round ends)
+- Minkowski sum and difference (`clipper_path*_minkowski_{sum,diff}`) for sweeping an arbitrary polygon kernel along a path or polygon set — single-path and multi-path, both `_64` and `_D` — when the kernel isn't a circle and a plain offset won't do
 - Path simplification (`clipper_*_simplify`)
 - Point-in-polygon test
 - Polygon area
@@ -31,15 +32,14 @@ been substantially rewritten — most notably for zero-copy.
 
 The Rust bindings cover the subset of Clipper2's C ABI that the
 higher-level [`clipper2`](https://crates.io/crates/clipper2) crate
-consumes. Other Clipper2 capabilities — Minkowski sum/difference,
-rectangular clipping, the named simplification variants (RDP,
-near-equal stripping, collinear trimming), bounds, and SVG I/O — exist
-in the vendored C source but are not currently allowlisted in the Rust
-bindings.
+consumes. Other Clipper2 capabilities — rectangular clipping, the
+named simplification variants (RDP, near-equal stripping, collinear
+trimming), bounds, and SVG I/O — exist in the vendored C source but
+are not currently allowlisted in the Rust bindings.
 
 ## Typical use cases
 
-- **CAD / CNC / 3D-printing slicers** — toolpath offsetting, pocketing, infill generation, contour boolean operations
+- **CAD / CNC / 3D-printing slicers** — toolpath offsetting (including drag-knife and other non-circular tool footprints via Minkowski sum), pocketing, infill generation, contour boolean operations
 - **GIS / mapping** — polygon overlay, buffer zones, vector tile clipping
 - **Vector graphics & rendering** — path stroking via offset, SVG-style clipping, tessellation pre-pass
 - **Game development** — visibility polygons, navigation mesh boolean operations, collision-region merging
