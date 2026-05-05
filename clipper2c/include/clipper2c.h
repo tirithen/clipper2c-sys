@@ -245,31 +245,89 @@ ClipperPaths64 *clipper_scale_pathsd_to_paths64(void *mem, ClipperPathsD *paths,
 
 // Minkowski
 
+/**
+ * Minkowski sum: sweep the `pattern` polygon along `path`, returning
+ * the union of all translated copies of `pattern` placed at every
+ * vertex of `path`. Geometrically this is { a + b | a in pattern, b
+ * in path } — useful when you need to grow a shape by an arbitrary
+ * polygonal kernel rather than the radius-only kernel that
+ * clipper_paths64_inflate offers.
+ *
+ * Set `is_closed` to non-zero when `path` is a closed polygon (the
+ * usual case for boundary growth, configuration-space obstacles,
+ * tool-clearance regions); set it to 0 when `path` is an open
+ * polyline (drag-knife / profile-cutter centerlines, stroke
+ * generation).
+ *
+ * The returned ClipperPaths64 is placement-new constructed into `mem`
+ * (allocate via clipper_allocate(clipper_paths64_size())) and must be
+ * released with clipper_delete_paths64. Multi-path output is normal:
+ * the result can include holes (an outer ring plus inner rings) when
+ * the swept region encloses a non-swept interior.
+ */
 ClipperPaths64 *clipper_path64_minkowski_sum(void *mem, ClipperPath64 *pattern,
                                              ClipperPath64 *path,
                                              int is_closed);
+/**
+ * Decimal-coordinate version of clipper_path64_minkowski_sum. The
+ * `precision` argument selects how many fractional digits are
+ * preserved when Clipper2 internally scales to integers, runs the
+ * algorithm, and scales back; see the crate-level "_64 (i64) vs _D
+ * (f64) variants" documentation for the precision / range / quantisation
+ * tradeoffs. Two decimal places is upstream's default.
+ */
 ClipperPathsD *clipper_pathd_minkowski_sum(void *mem, ClipperPathD *pattern,
                                            ClipperPathD *path, int is_closed,
                                            int precision);
+/**
+ * Minkowski difference: like clipper_path64_minkowski_sum but
+ * translates `pattern` by -p instead of +p at each vertex of `path`.
+ * For a pattern that is symmetric about the origin (e.g. a centred
+ * disc or square) sum and difference produce the same result; the
+ * distinction matters as soon as the pattern is asymmetric, where
+ * difference is the operation you want for "set of points x such
+ * that x + pattern is contained in path" intuitions (robot-footprint
+ * configuration space, tool-reachability inside a pocket).
+ *
+ * Same memory contract as clipper_path64_minkowski_sum.
+ */
 ClipperPaths64 *clipper_path64_minkowski_diff(void *mem, ClipperPath64 *pattern,
                                               ClipperPath64 *path,
                                               int is_closed);
+/** Decimal-coordinate version of clipper_path64_minkowski_diff. See
+ *  clipper_pathd_minkowski_sum for the meaning of `precision`. */
 ClipperPathsD *clipper_pathd_minkowski_diff(void *mem, ClipperPathD *pattern,
                                             ClipperPathD *path, int is_closed,
                                             int precision);
+/**
+ * Multi-path variant of clipper_path64_minkowski_sum. The pattern is
+ * a single path applied to every input path in `paths`; the per-path
+ * results are unioned with `fillrule`, so this is exactly equivalent
+ * to running clipper_path64_minkowski_sum once per input path and
+ * unioning the outputs — provided here for the common case of a
+ * scene-wide kernel sweep over many polygons.
+ *
+ * Same memory contract as clipper_path64_minkowski_sum.
+ */
 ClipperPaths64 *clipper_paths64_minkowski_sum(void *mem, ClipperPath64 *pattern,
                                               ClipperPaths64 *paths,
                                               int is_closed,
                                               ClipperFillRule fillrule);
+/** Decimal-coordinate version of clipper_paths64_minkowski_sum. See
+ *  clipper_pathd_minkowski_sum for the meaning of `precision`. */
 ClipperPathsD *clipper_pathsd_minkowski_sum(void *mem, ClipperPathD *pattern,
                                             ClipperPathsD *paths, int is_closed,
                                             int precision,
                                             ClipperFillRule fillrule);
+/** Multi-path variant of clipper_path64_minkowski_diff; same shape as
+ *  clipper_paths64_minkowski_sum. */
 ClipperPaths64 *clipper_paths64_minkowski_diff(void *mem,
                                                ClipperPath64 *pattern,
                                                ClipperPaths64 *paths,
                                                int is_closed,
                                                ClipperFillRule fillrule);
+/** Decimal-coordinate version of clipper_paths64_minkowski_diff. See
+ *  clipper_pathd_minkowski_sum for the meaning of `precision`. */
 ClipperPathsD *clipper_pathsd_minkowski_diff(void *mem, ClipperPathD *pattern,
                                              ClipperPathsD *paths,
                                              int is_closed, int precision,

@@ -315,7 +315,7 @@ unsafe extern "C" {
     ) -> *mut ClipperPaths64;
 }
 unsafe extern "C" {
-    #[doc = " Minkowski"]
+    #[doc = " Minkowski sum: sweep the `pattern` polygon along `path`, returning\n the union of all translated copies of `pattern` placed at every\n vertex of `path`. Geometrically this is { a + b | a in pattern, b\n in path } — useful when you need to grow a shape by an arbitrary\n polygonal kernel rather than the radius-only kernel that\n clipper_paths64_inflate offers.\n\n Set `is_closed` to non-zero when `path` is a closed polygon (the\n usual case for boundary growth, configuration-space obstacles,\n tool-clearance regions); set it to 0 when `path` is an open\n polyline (drag-knife / profile-cutter centerlines, stroke\n generation).\n\n The returned ClipperPaths64 is placement-new constructed into `mem`\n (allocate via clipper_allocate(clipper_paths64_size())) and must be\n released with clipper_delete_paths64. Multi-path output is normal:\n the result can include holes (an outer ring plus inner rings) when\n the swept region encloses a non-swept interior."]
     pub fn clipper_path64_minkowski_sum(
         mem: *mut ::std::os::raw::c_void,
         pattern: *mut ClipperPath64,
@@ -324,6 +324,7 @@ unsafe extern "C" {
     ) -> *mut ClipperPaths64;
 }
 unsafe extern "C" {
+    #[doc = " Decimal-coordinate version of clipper_path64_minkowski_sum. The\n `precision` argument selects how many fractional digits are\n preserved when Clipper2 internally scales to integers, runs the\n algorithm, and scales back; see the crate-level \"_64 (i64) vs _D\n (f64) variants\" documentation for the precision / range / quantisation\n tradeoffs. Two decimal places is upstream's default."]
     pub fn clipper_pathd_minkowski_sum(
         mem: *mut ::std::os::raw::c_void,
         pattern: *mut ClipperPathD,
@@ -333,6 +334,7 @@ unsafe extern "C" {
     ) -> *mut ClipperPathsD;
 }
 unsafe extern "C" {
+    #[doc = " Minkowski difference: like clipper_path64_minkowski_sum but\n translates `pattern` by -p instead of +p at each vertex of `path`.\n For a pattern that is symmetric about the origin (e.g. a centred\n disc or square) sum and difference produce the same result; the\n distinction matters as soon as the pattern is asymmetric, where\n difference is the operation you want for \"set of points x such\n that x + pattern is contained in path\" intuitions (robot-footprint\n configuration space, tool-reachability inside a pocket).\n\n Same memory contract as clipper_path64_minkowski_sum."]
     pub fn clipper_path64_minkowski_diff(
         mem: *mut ::std::os::raw::c_void,
         pattern: *mut ClipperPath64,
@@ -341,6 +343,7 @@ unsafe extern "C" {
     ) -> *mut ClipperPaths64;
 }
 unsafe extern "C" {
+    #[doc = " Decimal-coordinate version of clipper_path64_minkowski_diff. See\n  clipper_pathd_minkowski_sum for the meaning of `precision`."]
     pub fn clipper_pathd_minkowski_diff(
         mem: *mut ::std::os::raw::c_void,
         pattern: *mut ClipperPathD,
@@ -350,6 +353,7 @@ unsafe extern "C" {
     ) -> *mut ClipperPathsD;
 }
 unsafe extern "C" {
+    #[doc = " Multi-path variant of clipper_path64_minkowski_sum. The pattern is\n a single path applied to every input path in `paths`; the per-path\n results are unioned with `fillrule`, so this is exactly equivalent\n to running clipper_path64_minkowski_sum once per input path and\n unioning the outputs — provided here for the common case of a\n scene-wide kernel sweep over many polygons.\n\n Same memory contract as clipper_path64_minkowski_sum."]
     pub fn clipper_paths64_minkowski_sum(
         mem: *mut ::std::os::raw::c_void,
         pattern: *mut ClipperPath64,
@@ -359,6 +363,7 @@ unsafe extern "C" {
     ) -> *mut ClipperPaths64;
 }
 unsafe extern "C" {
+    #[doc = " Decimal-coordinate version of clipper_paths64_minkowski_sum. See\n  clipper_pathd_minkowski_sum for the meaning of `precision`."]
     pub fn clipper_pathsd_minkowski_sum(
         mem: *mut ::std::os::raw::c_void,
         pattern: *mut ClipperPathD,
@@ -369,6 +374,7 @@ unsafe extern "C" {
     ) -> *mut ClipperPathsD;
 }
 unsafe extern "C" {
+    #[doc = " Multi-path variant of clipper_path64_minkowski_diff; same shape as\n  clipper_paths64_minkowski_sum."]
     pub fn clipper_paths64_minkowski_diff(
         mem: *mut ::std::os::raw::c_void,
         pattern: *mut ClipperPath64,
@@ -378,6 +384,7 @@ unsafe extern "C" {
     ) -> *mut ClipperPaths64;
 }
 unsafe extern "C" {
+    #[doc = " Decimal-coordinate version of clipper_paths64_minkowski_diff. See\n  clipper_pathd_minkowski_sum for the meaning of `precision`."]
     pub fn clipper_pathsd_minkowski_diff(
         mem: *mut ::std::os::raw::c_void,
         pattern: *mut ClipperPathD,
