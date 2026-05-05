@@ -11,7 +11,7 @@ All notable changes to this project will be documented in this file.
 body = """
 {%- if version %}
 ### [{{ version | trim_start_matches(pat="v") }}]\
-({{ remote.url }}/compare/{{ previous.version }}...{{ version }}) \
+(https://github.com/tirithen/clipper2c-sys/compare/{{ previous.version }}...{{ version }}) \
 ({{ timestamp | date(format="%Y-%m-%d") }})
 {%- else %}
 ### Unreleased
@@ -22,7 +22,7 @@ body = """
 {% for commit in commits -%}
 * {{ commit.message }} \
 ([{{ commit.id | truncate(length=7, end="") }}]\
-({{ remote.url }}/commit/{{ commit.id }}))
+(https://github.com/tirithen/clipper2c-sys/commit/{{ commit.id }}))
 {% endfor %}
 {%- endfor %}
 """
@@ -36,11 +36,15 @@ filter_commits = false
 tag_pattern = "v[0-9].*"
 sort_commits = "oldest"
 commit_parsers = [
+  # The BREAKING-CHANGE footer rule deliberately precedes the message
+  # rules: a commit can only land in one group, and a release-defining
+  # breaking change deserves its own section regardless of whether the
+  # subject prefix is feat / fix / refactor / etc.
+  { footer = "(?i)^breaking[ -]change", group = "BREAKING CHANGES" },
   { message = "^feat", group = "Features" },
   { message = "^fix", group = "Bug Fixes" },
   { message = "^perf", group = "Performance Improvements" },
   { message = "^revert", group = "Reverts" },
-  { footer = "^breaking[ -]change", group = "BREAKING CHANGES" },
   { message = "^doc", skip = true },
   { message = "^style", skip = true },
   { message = "^refactor", skip = true },
