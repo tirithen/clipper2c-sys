@@ -48,14 +48,11 @@ are not currently allowlisted in the Rust bindings.
 
 ## Versioning
 
-The crate's SemVer tracks the Rust FFI surface. The bundled Clipper2
-version is recorded directly in upstream's [`clipper.version.h`](clipper2c/vendor/Clipper2/CPP/Clipper2Lib/include/clipper2/clipper.version.h)
-— that file is the single source of truth for which Clipper2 release
-this crate is built against.
-
-```toml
-clipper2c-sys = "0.1"
-```
+This crate's SemVer tracks the Rust FFI surface — a version bump
+reflects a change to the bindings, not necessarily to the underlying
+library. The bundled Clipper2 release is independent and is recorded
+in upstream's [`clipper.version.h`](clipper2c/vendor/Clipper2/CPP/Clipper2Lib/include/clipper2/clipper.version.h)
+inside the vendored source tree.
 
 ## Building
 
