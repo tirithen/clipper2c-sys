@@ -5,32 +5,35 @@
 all-features = true
 
 [advisories]
+# Opt into cargo-deny v2 advisory semantics: every RUSTSEC category
+# (vulnerability, unsound, unmaintained, notice) is treated as an
+# error by default rather than relying on per-severity opt-ins.
+version = 2
 db-path = "~/.cargo/advisory-db"
 db-urls = ["https://github.com/rustsec/advisory-db"]
+# Treat yanked crates as a hard error — yanking from crates.io is the
+# author signalling 'do not depend on this version'.
 yanked = "deny"
+# Flag unmaintained advisories regardless of whether the affected
+# crate is direct or transitive ('all' is the cargo-deny default but
+# we set it explicitly so the policy is visible at a glance).
+unmaintained = "all"
+# Specific advisory IDs to suppress would go here, e.g. RUSTSEC-2020-0071
+# Each entry should carry a reason in a comment so the suppression is
+# auditable.
 ignore = []
 
 [licenses]
-# Permissive licenses we accept across the dependency graph.
-# The crate itself is dual MIT / Apache-2.0; the vendored Clipper2
-# C++ source is BSL-1.0 (Boost Software License 1.0), which is
-# compatible with both. cargo-deny only sees the Rust dependency
-# graph -- the C++ side is documented in the README and license
-# files under clipper2c/ and clipper2c/vendor/Clipper2/.
+# Permissive licenses encountered in the Rust dependency graph.
+# cargo-deny only sees Rust crates, not the vendored Clipper2 C++
+# source — that one is BSL-1.0 (Boost Software License 1.0) and is
+# documented in clipper2c/LICENSE plus the repository README.
 allow = [
   "MIT",
   "Apache-2.0",
-  "Apache-2.0 WITH LLVM-exception",
-  "BSD-2-Clause",
   "BSD-3-Clause",
-  "BSL-1.0",
   "ISC",
-  "Zlib",
   "Unicode-3.0",
-  "Unicode-DFS-2016",
-  "MPL-2.0",
-  "0BSD",
-  "CC0-1.0",
 ]
 confidence-threshold = 0.93
 exceptions = []
