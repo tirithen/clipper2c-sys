@@ -66,19 +66,6 @@ unsafe extern "C" {
     fn clipper_delete_svgreader(p: *mut ClipperSvgReader);
     fn clipper_path64_to_points(mem: *mut c_void, path: *mut ClipperPath64) -> *mut ClipperPoint64;
     fn clipper_pathd_to_points(mem: *mut c_void, path: *mut ClipperPathD) -> *mut ClipperPointD;
-    fn clipper_path64_minkowski_sum(
-        mem: *mut c_void,
-        pattern: *mut ClipperPath64,
-        path: *mut ClipperPath64,
-        is_closed: c_int,
-    ) -> *mut ClipperPaths64;
-    fn clipper_paths64_minkowski_sum(
-        mem: *mut c_void,
-        pattern: *mut ClipperPath64,
-        paths: *mut ClipperPaths64,
-        is_closed: c_int,
-        fillrule: ClipperFillRule,
-    ) -> *mut ClipperPaths64;
     fn clipper_path64_ramer_douglas_peucker(
         mem: *mut c_void,
         path: *mut ClipperPath64,
@@ -538,45 +525,117 @@ fn test_scale_path_conversion_memory() {
 }
 
 #[test]
-fn test_minkowski_sum_memory() {
-    let mut pattern = vec![
+fn test_minkowski_memory() {
+    let mut pattern64 = vec![
         ClipperPoint64 { x: -5, y: -5 },
         ClipperPoint64 { x: 5, y: -5 },
         ClipperPoint64 { x: 5, y: 5 },
         ClipperPoint64 { x: -5, y: 5 },
     ];
-    let mut path = vec![
+    let mut path64 = vec![
         ClipperPoint64 { x: 0, y: 0 },
         ClipperPoint64 { x: 100, y: 0 },
         ClipperPoint64 { x: 100, y: 100 },
         ClipperPoint64 { x: 0, y: 100 },
     ];
+    let mut patternd = vec![
+        ClipperPointD { x: -5.0, y: -5.0 },
+        ClipperPointD { x: 5.0, y: -5.0 },
+        ClipperPointD { x: 5.0, y: 5.0 },
+        ClipperPointD { x: -5.0, y: 5.0 },
+    ];
+    let mut pathd = vec![
+        ClipperPointD { x: 0.0, y: 0.0 },
+        ClipperPointD { x: 100.0, y: 0.0 },
+        ClipperPointD { x: 100.0, y: 100.0 },
+        ClipperPointD { x: 0.0, y: 100.0 },
+    ];
+    let precision = 2;
 
     for _ in 0..LEAK_ITERATIONS {
         unsafe {
-            let pat_mem = alloc(clipper_path64_size());
-            let pat = clipper_path64_of_points(pat_mem, pattern.as_mut_ptr(), pattern.len());
-            let path_mem = alloc(clipper_path64_size());
-            let p = clipper_path64_of_points(path_mem, path.as_mut_ptr(), path.len());
+            let pat64_mem = alloc(clipper_path64_size());
+            let pat64 =
+                clipper_path64_of_points(pat64_mem, pattern64.as_mut_ptr(), pattern64.len());
+            let p64_mem = alloc(clipper_path64_size());
+            let p64 = clipper_path64_of_points(p64_mem, path64.as_mut_ptr(), path64.len());
+            let ps64_mem = alloc(clipper_paths64_size());
+            let ps64 = clipper_paths64_of_paths(ps64_mem, [p64].as_mut_ptr(), 1);
 
-            // Single-path Minkowski sum
-            let result_mem = alloc(clipper_paths64_size());
-            let result = clipper_path64_minkowski_sum(result_mem, pat, p, 1);
-            assert!(clipper_paths64_length(result) > 0);
+            let patd_mem = alloc(clipper_pathd_size());
+            let patd = clipper_pathd_of_points(patd_mem, patternd.as_mut_ptr(), patternd.len());
+            let pd_mem = alloc(clipper_pathd_size());
+            let pd = clipper_pathd_of_points(pd_mem, pathd.as_mut_ptr(), pathd.len());
+            let psd_mem = alloc(clipper_pathsd_size());
+            let psd = clipper_pathsd_of_paths(psd_mem, [pd].as_mut_ptr(), 1);
 
-            // Multi-path Minkowski sum
-            let paths_mem = alloc(clipper_paths64_size());
-            let paths = clipper_paths64_of_paths(paths_mem, [p].as_mut_ptr(), 1);
-            let mresult_mem = alloc(clipper_paths64_size());
-            let mresult =
-                clipper_paths64_minkowski_sum(mresult_mem, pat, paths, 1, ClipperFillRule_EVEN_ODD);
-            assert!(clipper_paths64_length(mresult) > 0);
+            let sum64_mem = alloc(clipper_paths64_size());
+            let sum64 = clipper_path64_minkowski_sum(sum64_mem, pat64, p64, 1);
+            assert!(clipper_paths64_length(sum64) > 0);
 
-            clipper_delete_paths64(mresult);
-            clipper_delete_paths64(paths);
-            clipper_delete_paths64(result);
-            clipper_delete_path64(p);
-            clipper_delete_path64(pat);
+            let diff64_mem = alloc(clipper_paths64_size());
+            let diff64 = clipper_path64_minkowski_diff(diff64_mem, pat64, p64, 1);
+            assert!(clipper_paths64_length(diff64) > 0);
+
+            let sumd_mem = alloc(clipper_pathsd_size());
+            let sumd = clipper_pathd_minkowski_sum(sumd_mem, patd, pd, 1, precision);
+            assert!(clipper_pathsd_length(sumd) > 0);
+
+            let diffd_mem = alloc(clipper_pathsd_size());
+            let diffd = clipper_pathd_minkowski_diff(diffd_mem, patd, pd, 1, precision);
+            assert!(clipper_pathsd_length(diffd) > 0);
+
+            let msum64_mem = alloc(clipper_paths64_size());
+            let msum64 =
+                clipper_paths64_minkowski_sum(msum64_mem, pat64, ps64, 1, ClipperFillRule_EVEN_ODD);
+            assert!(clipper_paths64_length(msum64) > 0);
+
+            let mdiff64_mem = alloc(clipper_paths64_size());
+            let mdiff64 = clipper_paths64_minkowski_diff(
+                mdiff64_mem,
+                pat64,
+                ps64,
+                1,
+                ClipperFillRule_EVEN_ODD,
+            );
+            assert!(clipper_paths64_length(mdiff64) > 0);
+
+            let msumd_mem = alloc(clipper_pathsd_size());
+            let msumd = clipper_pathsd_minkowski_sum(
+                msumd_mem,
+                patd,
+                psd,
+                1,
+                precision,
+                ClipperFillRule_EVEN_ODD,
+            );
+            assert!(clipper_pathsd_length(msumd) > 0);
+
+            let mdiffd_mem = alloc(clipper_pathsd_size());
+            let mdiffd = clipper_pathsd_minkowski_diff(
+                mdiffd_mem,
+                patd,
+                psd,
+                1,
+                precision,
+                ClipperFillRule_EVEN_ODD,
+            );
+            assert!(clipper_pathsd_length(mdiffd) > 0);
+
+            clipper_delete_pathsd(mdiffd);
+            clipper_delete_pathsd(msumd);
+            clipper_delete_paths64(mdiff64);
+            clipper_delete_paths64(msum64);
+            clipper_delete_pathsd(diffd);
+            clipper_delete_pathsd(sumd);
+            clipper_delete_paths64(diff64);
+            clipper_delete_paths64(sum64);
+            clipper_delete_pathsd(psd);
+            clipper_delete_pathd(pd);
+            clipper_delete_pathd(patd);
+            clipper_delete_paths64(ps64);
+            clipper_delete_path64(p64);
+            clipper_delete_path64(pat64);
         }
     }
 }
