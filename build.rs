@@ -35,7 +35,7 @@ fn main() {
     let target_env = env::var("CARGO_CFG_TARGET_ENV").unwrap();
 
     match (target_os.as_str(), target_env.as_str()) {
-        ("linux", _) | ("windows", "gnu") | ("android", _) => {
+        ("linux", _) | ("hurd", _) | ("windows", "gnu") | ("android", _) => {
             println!("cargo:rustc-link-lib=dylib=stdc++")
         }
         ("macos", _) | ("ios", _) => println!("cargo:rustc-link-lib=dylib=c++"),

@@ -1,4 +1,4 @@
-use std::os::raw::{c_int, c_void};
+use std::os::raw::{c_char, c_int, c_void};
 use std::ptr;
 
 use crate::*;
@@ -50,13 +50,13 @@ unsafe extern "C" {
     );
     fn clipper_svgwriter_save_to_file(
         w: *mut ClipperSvgWriter,
-        filename: *const i8,
+        filename: *const c_char,
         max_width: c_int,
         max_height: c_int,
         margin: c_int,
     ) -> c_int;
     fn clipper_svgwriter_clear(w: *mut ClipperSvgWriter);
-    fn clipper_svgreader_load_from_file(r: *mut ClipperSvgReader, filename: *const i8);
+    fn clipper_svgreader_load_from_file(r: *mut ClipperSvgReader, filename: *const c_char);
     fn clipper_svgreader_get_pathsd(
         mem: *mut c_void,
         r: *mut ClipperSvgReader,
