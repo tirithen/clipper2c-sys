@@ -1837,9 +1837,15 @@ unsafe fn joined_offset_area(paths: &[Vec<ClipperPoint64>], delta: f64) -> f64 {
         let mut points: Vec<Vec<ClipperPoint64>> = paths.to_vec();
         let mut path_ptrs: Vec<*mut ClipperPath64> = points
             .iter_mut()
-            .map(|p| clipper_path64_of_points(alloc(clipper_path64_size()), p.as_mut_ptr(), p.len()))
+            .map(|p| {
+                clipper_path64_of_points(alloc(clipper_path64_size()), p.as_mut_ptr(), p.len())
+            })
             .collect();
-        let input = clipper_paths64_of_paths(alloc(clipper_paths64_size()), path_ptrs.as_mut_ptr(), path_ptrs.len());
+        let input = clipper_paths64_of_paths(
+            alloc(clipper_paths64_size()),
+            path_ptrs.as_mut_ptr(),
+            path_ptrs.len(),
+        );
         for path in path_ptrs {
             clipper_delete_path64(path);
         }
@@ -1860,7 +1866,10 @@ unsafe fn joined_offset_area(paths: &[Vec<ClipperPoint64>], delta: f64) -> f64 {
 
 #[test]
 fn offset_does_not_depend_on_the_order_of_the_paths() {
-    let two = vec![ClipperPoint64 { x: 2000, y: 0 }, ClipperPoint64 { x: 2500, y: 0 }];
+    let two = vec![
+        ClipperPoint64 { x: 2000, y: 0 },
+        ClipperPoint64 { x: 2500, y: 0 },
+    ];
     let square = vec![
         ClipperPoint64 { x: 0, y: 0 },
         ClipperPoint64 { x: 600, y: 0 },
@@ -1890,9 +1899,17 @@ unsafe fn square_offset_area(precision: c_int) -> f64 {
             ClipperPointD { x: 1.0, y: 1.0 },
             ClipperPointD { x: 0.0, y: 1.0 },
         ];
-        let path = clipper_pathd_of_points(alloc(clipper_pathd_size()), points.as_mut_ptr(), points.len());
+        let path = clipper_pathd_of_points(
+            alloc(clipper_pathd_size()),
+            points.as_mut_ptr(),
+            points.len(),
+        );
         let mut path_ptrs = vec![path];
-        let input = clipper_pathsd_of_paths(alloc(clipper_pathsd_size()), path_ptrs.as_mut_ptr(), path_ptrs.len());
+        let input = clipper_pathsd_of_paths(
+            alloc(clipper_pathsd_size()),
+            path_ptrs.as_mut_ptr(),
+            path_ptrs.len(),
+        );
         clipper_delete_pathd(path);
         let result = clipper_pathsd_inflate(
             alloc(clipper_pathsd_size()),
