@@ -47,11 +47,8 @@ fn main() {
         // For wasm32-unknown-unknown the C++ stdlib is compiled into the .a
         // archive by the WASI SDK toolchain, so no separate link step is needed.
         ("unknown", _) => {}
-        _ => unimplemented!(
-            "target_os: {}, target_env: {}",
-            target_os.as_str(),
-            target_env.as_str()
-        ),
+        // cc links the C++ standard library of every other target itself.
+        _ => {}
     }
 
     #[cfg(feature = "generate-bindings")]
