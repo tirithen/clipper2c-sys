@@ -2,8 +2,6 @@
 
 All notable changes to this project will be documented in this file. Commit messages follow the [Conventional Commits](https://www.conventionalcommits.org/) specification, which drives the version bumps and the per-release sections below.
 
-
-
 ### [0.2.0](https://github.com/tirithen/clipper2c-sys/compare/v0.1.6...v0.2.0) (2026-05-05)
 
 ### BREAKING CHANGES
