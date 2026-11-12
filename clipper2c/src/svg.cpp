@@ -83,15 +83,11 @@ ClipperSvgReader *clipper_svgreader(void *mem) {
 
 void clipper_svgreader_load_from_file(ClipperSvgReader *r,
                                       const char *filename) {
-  auto *reader = from_c(r);
-  reader->~SvgReader();
-  new (reader) SvgReader(std::string(filename));
+  *from_c(r) = SvgReader(std::string(filename));
 }
 
 void clipper_svgreader_clear(ClipperSvgReader *r) {
-  auto *reader = from_c(r);
-  reader->~SvgReader();
-  new (reader) SvgReader(std::string());
+  *from_c(r) = SvgReader(std::string());
 }
 
 ClipperPathsD *clipper_svgreader_get_pathsd(void *mem, ClipperSvgReader *r) {
