@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. Commit messages follow the [Conventional Commits](https://www.conventionalcommits.org/) specification, which drives the version bumps and the per-release sections below.
 
+### [0.2.1](https://github.com/tirithen/clipper2c-sys/compare/v0.2.0...v0.2.1) (2026-11-12)
+
+### Bug Fixes
+
+* support GNU/Hurd and portable C string arguments ([81758f0](https://github.com/tirithen/clipper2c-sys/commit/81758f044a38619eec9cf20faa19af6b91fe2651))
+* carry Clipper2's offset fixes made after 2.0.1 ([051e94e](https://github.com/tirithen/clipper2c-sys/commit/051e94e630a9870293516b102fc65175c6cc15b7))
+* carry two of Clipper2's boolean fixes made after 2.0.1 ([f1e7f5e](https://github.com/tirithen/clipper2c-sys/commit/f1e7f5ee21f0362a0a2a596cf70948ead69d388e))
+* keep C++ exceptions from unwinding into Rust ([7576795](https://github.com/tirithen/clipper2c-sys/commit/7576795ba95cfe098313c0ed0f8548614eaddb21))
+* build for targets that the build script does not list ([b277051](https://github.com/tirithen/clipper2c-sys/commit/b277051dd3c9095f6244dc22bd7074ff6aae4e5b))
+* replace the SVG reader by assignment instead of in place ([718340d](https://github.com/tirithen/clipper2c-sys/commit/718340d666912992ad90b8dabee79eecb5409fb4))
+
 ### [0.2.0](https://github.com/tirithen/clipper2c-sys/compare/v0.1.6...v0.2.0) (2026-05-05)
 
 ### BREAKING CHANGES
