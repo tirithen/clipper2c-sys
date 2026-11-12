@@ -1881,3 +1881,38 @@ fn offset_of_an_empty_path_with_open_ends_is_empty() {
     let area = unsafe { joined_offset_area(&[Vec::new()], 100.0) };
     assert_eq!(area, 0.0);
 }
+
+unsafe fn square_offset_area(precision: c_int) -> f64 {
+    unsafe {
+        let mut points = vec![
+            ClipperPointD { x: 0.0, y: 0.0 },
+            ClipperPointD { x: 1.0, y: 0.0 },
+            ClipperPointD { x: 1.0, y: 1.0 },
+            ClipperPointD { x: 0.0, y: 1.0 },
+        ];
+        let path = clipper_pathd_of_points(alloc(clipper_pathd_size()), points.as_mut_ptr(), points.len());
+        let mut path_ptrs = vec![path];
+        let input = clipper_pathsd_of_paths(alloc(clipper_pathsd_size()), path_ptrs.as_mut_ptr(), path_ptrs.len());
+        clipper_delete_pathd(path);
+        let result = clipper_pathsd_inflate(
+            alloc(clipper_pathsd_size()),
+            input,
+            0.5,
+            ClipperJoinType_MITER_JOIN,
+            ClipperEndType_POLYGON_END,
+            2.0,
+            precision,
+        );
+        let area = clipper_pathsd_area(result);
+        clipper_delete_pathsd(input);
+        clipper_delete_pathsd(result);
+        area
+    }
+}
+
+#[test]
+fn precision_out_of_range_gives_an_empty_result() {
+    let (out_of_range, largest) = unsafe { (square_offset_area(9), square_offset_area(8)) };
+    assert_eq!(out_of_range, 0.0);
+    assert_eq!(largest, 4.0);
+}

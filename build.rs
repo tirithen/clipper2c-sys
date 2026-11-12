@@ -27,6 +27,10 @@ fn main() {
             "clipper2c/src/rect.cpp",
             "clipper2c/src/svg.cpp",
         ])
+        // A C++ exception must not unwind into Rust through the C API.
+        // Without exceptions Clipper2 reports its errors without throwing
+        // (clipper.core.h, DoError).
+        .flag_if_supported("-fno-exceptions")
         .flag_if_supported("-std:c++17") // MSVC
         .flag_if_supported("-std=c++17")
         .compile("clipper2c");
