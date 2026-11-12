@@ -55,7 +55,6 @@ private:
 	PolyTree64* solution_tree = nullptr;
 	std::vector<Group> groups_;
 	JoinType join_type_ = JoinType::Bevel;
-	EndType end_type_ = EndType::Polygon;
 
 	double miter_limit_ = 0.0;
 	double arc_tolerance_ = 0.0;
@@ -75,9 +74,10 @@ private:
 	void DoMiter(const Path64& path, size_t j, size_t k, double cos_a);
 	void DoRound(const Path64& path, size_t j, size_t k, double angle);
 	void BuildNormals(const Path64& path);
+	void SetArcSteps(double delta);
 	void OffsetPolygon(Group& group, const Path64& path);
 	void OffsetOpenJoined(Group& group, const Path64& path);
-	void OffsetOpenPath(Group& group, const Path64& path);
+	void OffsetOpenPath(Group& group, const Path64& path, EndType end_type);
 	void OffsetPoint(Group& group, const Path64& path, size_t j, size_t k);
 	void DoGroupOffset(Group &group);
 	void ExecuteInternal(double delta);
@@ -88,14 +88,14 @@ public:
 		bool reverse_solution = false) :
 		miter_limit_(miter_limit), arc_tolerance_(arc_tolerance),
 		preserve_collinear_(preserve_collinear),
-		reverse_solution_(reverse_solution) { };
+		reverse_solution_(reverse_solution) { }
 
-	~ClipperOffset() { Clear(); };
+	~ClipperOffset() { Clear(); }
 
-	int ErrorCode() const { return error_code_; };
+	int ErrorCode() const { return error_code_; }
 	void AddPath(const Path64& path, JoinType jt_, EndType et_);
 	void AddPaths(const Paths64& paths, JoinType jt_, EndType et_);
-	void Clear() { groups_.clear(); norms.clear(); };
+	void Clear() { groups_.clear(); norms.clear(); }
 	
 	void Execute(double delta, Paths64& sols_64);
 	void Execute(double delta, PolyTree64& polytree);

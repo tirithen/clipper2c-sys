@@ -1830,3 +1830,54 @@ fn test_paths_get_path_returns_copy() {
         clipper_delete_path64(copy);
     }
 }
+
+/// The area of `paths` offset by `delta` with miter joins and joined ends.
+unsafe fn joined_offset_area(paths: &[Vec<ClipperPoint64>], delta: f64) -> f64 {
+    unsafe {
+        let mut points: Vec<Vec<ClipperPoint64>> = paths.to_vec();
+        let mut path_ptrs: Vec<*mut ClipperPath64> = points
+            .iter_mut()
+            .map(|p| clipper_path64_of_points(alloc(clipper_path64_size()), p.as_mut_ptr(), p.len()))
+            .collect();
+        let input = clipper_paths64_of_paths(alloc(clipper_paths64_size()), path_ptrs.as_mut_ptr(), path_ptrs.len());
+        for path in path_ptrs {
+            clipper_delete_path64(path);
+        }
+        let result = clipper_paths64_inflate(
+            alloc(clipper_paths64_size()),
+            input,
+            delta,
+            ClipperJoinType_MITER_JOIN,
+            ClipperEndType_JOINED_END,
+            2.0,
+        );
+        let area = clipper_paths64_area(result);
+        clipper_delete_paths64(input);
+        clipper_delete_paths64(result);
+        area
+    }
+}
+
+#[test]
+fn offset_does_not_depend_on_the_order_of_the_paths() {
+    let two = vec![ClipperPoint64 { x: 2000, y: 0 }, ClipperPoint64 { x: 2500, y: 0 }];
+    let square = vec![
+        ClipperPoint64 { x: 0, y: 0 },
+        ClipperPoint64 { x: 600, y: 0 },
+        ClipperPoint64 { x: 600, y: 600 },
+        ClipperPoint64 { x: 0, y: 600 },
+    ];
+    let (first, last) = unsafe {
+        (
+            joined_offset_area(&[two.clone(), square.clone()], 100.0),
+            joined_offset_area(&[square, two], 100.0),
+        )
+    };
+    assert_eq!(first, last);
+}
+
+#[test]
+fn offset_of_an_empty_path_with_open_ends_is_empty() {
+    let area = unsafe { joined_offset_area(&[Vec::new()], 100.0) };
+    assert_eq!(area, 0.0);
+}
