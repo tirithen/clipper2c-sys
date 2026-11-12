@@ -62,6 +62,7 @@ fn main() {
             .derive_eq(true)
             .derive_hash(true)
             .parse_callbacks(Box::new(bindgen::CargoCallbacks::new()))
+            .parse_callbacks(Box::new(OpaqueHandlesStayCopy))
             .allowlist_type("ClipperClipperD")
             .allowlist_type("ClipperPathD")
             .allowlist_type("ClipperPathsD")
@@ -237,5 +238,33 @@ fn main() {
 
         std::fs::write(&out_bindings, processed_content)
             .expect("couldn't write processed bindings file");
+    }
+}
+
+/// Keeps `Copy` and `Clone` on the opaque handle types, which bindgen
+/// derived for them before 0.73, so the generated API does not change.
+#[cfg(feature = "generate-bindings")]
+#[derive(Debug)]
+struct OpaqueHandlesStayCopy;
+
+#[cfg(feature = "generate-bindings")]
+impl bindgen::callbacks::ParseCallbacks for OpaqueHandlesStayCopy {
+    fn add_derives(&self, info: &bindgen::callbacks::DeriveInfo<'_>) -> Vec<String> {
+        const HANDLES: [&str; 9] = [
+            "ClipperClipper64",
+            "ClipperClipperD",
+            "ClipperClipperOffset",
+            "ClipperPath64",
+            "ClipperPathD",
+            "ClipperPaths64",
+            "ClipperPathsD",
+            "ClipperPolyTree64",
+            "ClipperPolyTreeD",
+        ];
+        if HANDLES.contains(&info.name) {
+            vec!["Copy".into(), "Clone".into()]
+        } else {
+            Vec::new()
+        }
     }
 }
